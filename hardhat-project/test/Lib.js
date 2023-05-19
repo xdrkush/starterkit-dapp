@@ -13,9 +13,15 @@ describe("Lib", function () {
         // Contracts are deployed using the first signer/account by default
         const [owner, addr2] = await ethers.getSigners();
 
-        // Deploy Contract
+        // Depploy Contract : SylerToken
+        const supply = hre.ethers.utils.parseEther("420000000");
+        const SylverToken = await ethers.getContractFactory("SylverToken");
+        const sylverToken = await SylverToken.deploy(supply);
+        await sylverToken.deployed();
+
+        // Deploy Contract : Lib
         const Lib = await ethers.getContractFactory("Lib");
-        const lib = await Lib.deploy();
+        const lib = await Lib.deploy(sylverToken.address);
 
         return { lib, owner, addr2 };
     }

@@ -7,8 +7,20 @@
 const hre = require("hardhat");
 
 async function main() {
+  const supply = hre.ethers.utils.parseEther("420000000");
+
+  const SylverToken = await hre.ethers.getContractFactory("SylverToken");
+  const sylverToken = await SylverToken.deploy(supply);
+
+  // Deplpoy Contract
+  await sylverToken.deployed();
+
+  console.log(
+    `SylverToken deployed to ${sylverToken.address}`
+  );
+
   const Lib = await hre.ethers.getContractFactory("Lib");
-  const lib = await Lib.deploy();
+  const lib = await Lib.deploy(sylverToken.address);
 
   // Deplpoy Contract
   await lib.deployed();

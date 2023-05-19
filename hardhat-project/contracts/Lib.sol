@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-contract Lib {
+import "./SylverToken.sol";
 
+contract Lib {
+    SylverToken private immutable token;
     address owner;
 
-    constructor() {
+    constructor(address _address) {
+        token = SylverToken(_address);
         owner = msg.sender;
     }
 
