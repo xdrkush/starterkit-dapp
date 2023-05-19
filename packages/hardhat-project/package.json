@@ -1,5 +1,14 @@
 {
   "name": "hardhat-project",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "help": "npx hardhat help",
+    "test": "npx hardhat test",
+    "blk": "npx hardhat node",
+    "deploy:local": "npx hardhat run scripts/deploy.js --network localhost",
+    "clean": "npx hardhat clean"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",

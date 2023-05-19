@@ -1,0 +1,24 @@
+{
+  "name": "starterkit-dapp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:xdrkush/starterkit-dapp.git",
+  "author": "xdrkush",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "blockchain": "npm run blk --workspace=hardhat-project",
+    "dapp:dev": "npm run dev --workspace=dapp",
+    "dapp:build": "npm run build --workspace=dapp",
+    "sc:help": "npm run help --workspace=hardhat-project",
+    "sc:test": "npm run test --workspace=hardhat-project",
+    "sc:deploy:local": "npm run deploy:local --workspace=hardhat-project",
+    "sc:clean": "npm run clean --workspace=hardhat-project"
+  },
+  "engines": {
+    "node": ">=16.16.0"
+  }
+}
