@@ -4,7 +4,7 @@ import {
   GridItem,
   Container
 } from "@chakra-ui/react"
-import { Navbar } from "./navbar";
+import { Navbar } from "@/components/navbar";
 
 export default function MainLayout({ children }) {
   return (

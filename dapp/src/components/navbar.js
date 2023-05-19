@@ -5,7 +5,7 @@ import {
     Link,
     useColorModeValue,
 } from "@chakra-ui/react"
-import { ColorModeSwitcher } from "./ColorSwitcher.js"
+import { ColorModeSwitcher } from "@/components/ColorSwitcher.js"
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export function Navbar({ isOpen }) {

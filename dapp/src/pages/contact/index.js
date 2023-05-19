@@ -1,3 +1,4 @@
+// page : /contact
 import MainLayout from '@/components/layout'
 import React from 'react'
 
