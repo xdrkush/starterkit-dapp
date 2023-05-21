@@ -141,23 +141,28 @@ contract Voting is Ownable {
 
     // Get Proposal winning
     // | Mod : onlyDuringStatus
+    // | Return : Proposal
     function getWinningProposal() public view onlyDuringStatus(WorkflowStatus.VotesTallied) returns (Proposal memory) {
         return proposals[winningProposalId];
     }
     // Get Status
+    // | Return : WorkflowStatus
     function getStatus() public view returns (WorkflowStatus) {
         return currentStatus;
     }
     // Get Voter
+    // | Return : Voter
     function getVoter(address _addr) public view returns (Voter memory) {
         return voters[_addr];
     }
     // Get Proposal
+    // | Return : Proposal
     function getProposal(uint proposalId) public view returns (Proposal memory) {
         require(totalProposals.current() > proposalId, "The proposal not exist!");
         return proposals[proposalId];
     }
     // Get isWhitelisted
+    // | Return : bool
     function isWhitelisted(address _addr) public view returns (bool) {
         return whitelist[_addr];
     }
