@@ -7,27 +7,34 @@
 const hre = require("hardhat");
 
 async function main() {
+  // Deploy Token
   const supply = hre.ethers.utils.parseEther("420000000");
-
   const SylverToken = await hre.ethers.getContractFactory("SylverToken");
   const sylverToken = await SylverToken.deploy(supply);
 
-  // Deplpoy Contract
   await sylverToken.deployed();
-
   console.log(
     `SylverToken deployed to ${sylverToken.address}`
   );
 
+  // Deploy Lib
   const Lib = await hre.ethers.getContractFactory("Lib");
   const lib = await Lib.deploy(sylverToken.address);
-
-  // Deplpoy Contract
+  
   await lib.deployed();
-
   console.log(
     `Lib deployed to ${lib.address}`
   );
+
+  // Deploy Voting
+  const Voting = await hre.ethers.getContractFactory("Voting");
+  const voting = await Voting.deploy();
+  
+  await voting.deployed();
+  console.log(
+    `Voting deployed to ${voting.address}`
+  );
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere
