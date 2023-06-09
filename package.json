@@ -15,6 +15,7 @@
     "dapp:build": "npm run build --workspace=dapp",
     "sc:help": "npm run help --workspace=hardhat-project",
     "sc:test": "npm run test --workspace=hardhat-project",
+    "sc:coverage": "npm run coverage --workspace=hardhat-project",
     "sc:deploy:local": "npm run deploy:local --workspace=hardhat-project",
     "sc:clean": "npm run clean --workspace=hardhat-project"
   },

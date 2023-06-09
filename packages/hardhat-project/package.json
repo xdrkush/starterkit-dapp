@@ -5,6 +5,7 @@
   "scripts": {
     "help": "npx hardhat help",
     "test": "npx hardhat test",
+    "coverage": "npx hardhat coverage",
     "blk": "npx hardhat node",
     "deploy:local": "npx hardhat run scripts/deploy.js --network localhost",
     "clean": "npx hardhat clean"
@@ -28,6 +29,6 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.8.3"
+    "@openzeppelin/contracts": "^4.9.1"
   }
 }
