@@ -29,6 +29,7 @@ yarn dapp:dev
 (new terminal), ctrl+shift+t
 ```sh
 yarn sc:test
+yarn sc:coverage
 yarn sc:deploy:local
 ```
 ____

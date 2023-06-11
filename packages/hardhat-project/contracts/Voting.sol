@@ -2,7 +2,7 @@
 pragma solidity 0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract VotingCor is Ownable {
+contract Voting is Ownable {
     uint public winningProposalID;
 
     struct Voter {
