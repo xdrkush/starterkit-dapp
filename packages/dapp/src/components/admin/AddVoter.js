@@ -1,48 +1,25 @@
-
+import { VotingContext } from '@/contexts';
 import {
-    Box,
-    Popover,
-    PopoverTrigger,
-    Button,
-    Portal,
-    PopoverContent,
-    PopoverHeader,
-    PopoverCloseButton,
-    PopoverBody
-  } from '@chakra-ui/react';
+    Box, Button, Input, FormControl, FormLabel, Text
+} from '@chakra-ui/react';
+import { useContext, useState } from 'react';
 
-export function ButtonAccount() {
-
+export function AddVoter() {
+    const {addVoter} = useContext(VotingContext)
+    const [addressTo, setAddressTo] = useState("")
 
     return (
-        <Popover closeOnBlur={false} placement='left' initialFocusRef={initRef}>
-            {({ isOpen, onClose }) => (
-                <>
-                    <PopoverTrigger>
-                        <Button>Click to {isOpen ? 'close' : 'open'}</Button>
-                    </PopoverTrigger>
-                    <Portal>
-                        <PopoverContent>
-                            <PopoverHeader>This is the header</PopoverHeader>
-                            <PopoverCloseButton />
-                            <PopoverBody>
-                                <Box>
-                                    Hello. Nice to meet you! This is the body of the popover
-                                </Box>
-                                <Button
-                                    mt={4}
-                                    colorScheme='blue'
-                                    onClick={onClose}
-                                    ref={initRef}
-                                >
-                                    Close
-                                </Button>
-                            </PopoverBody>
-                            <PopoverFooter>This is the footer</PopoverFooter>
-                        </PopoverContent>
-                    </Portal>
-                </>
-            )}
-        </Popover>
+        <Box>
+            <Text fontSize="2xl">AddVoter ( {addressTo} )</Text>
+            <FormControl>
+                <FormLabel>Target address</FormLabel>
+                <Input
+                    focusBorderColor={addressTo.length === 42 ? "green.500" : "red.500"}
+                    value={addressTo}
+                    onChange={(e) => setAddressTo(e.target.value)}
+                />
+            </FormControl>
+            <Button onClick={() => addVoter(addressTo)}> Add Voter </Button>
+        </Box>
     )
 }

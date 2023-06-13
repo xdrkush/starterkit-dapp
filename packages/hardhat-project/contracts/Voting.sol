@@ -29,14 +29,41 @@ contract Voting is Ownable {
     Proposal[] proposalsArray;
     mapping(address => Voter) voters;
 
+    /**
+     * @notice  .
+     * @dev     .
+     * @param   voterAddress  .
+     */
     event VoterRegistered(address voterAddress);
+    
+    /**
+     * @notice  .
+     * @dev     .
+     * @param   previousStatus  .
+     * @param   newStatus  .
+     */
     event WorkflowStatusChange(
         WorkflowStatus previousStatus,
         WorkflowStatus newStatus
     );
+    /**
+     * @notice  .
+     * @dev     .
+     * @param   proposalId  .
+     */
     event ProposalRegistered(uint proposalId);
+    /**
+     * @notice  .
+     * @dev     .
+     * @param   voter  .
+     * @param   proposalId  .
+     */
     event Voted(address voter, uint proposalId);
 
+    /**
+     * @notice  .
+     * @dev     .
+     */
     modifier onlyVoters() {
         require(voters[msg.sender].isRegistered, "You're not a voter");
         _;
@@ -46,12 +73,24 @@ contract Voting is Ownable {
 
     // ::::::::::::: GETTERS ::::::::::::: //
 
+    /**
+     * @notice  .
+     * @dev     .
+     * @param   _addr  .
+     * @return  Voter  .
+     */
     function getVoter(
         address _addr
     ) external view onlyVoters returns (Voter memory) {
         return voters[_addr];
     }
 
+    /**
+     * @notice  .
+     * @dev     .
+     * @param   _id  .
+     * @return  Proposal  .
+     */
     function getOneProposal(
         uint _id
     ) external view onlyVoters returns (Proposal memory) {
@@ -60,6 +99,11 @@ contract Voting is Ownable {
 
     // ::::::::::::: REGISTRATION ::::::::::::: //
 
+    /**
+     * @notice  .
+     * @dev     .
+     * @param   _addr  .
+     */
     function addVoter(address _addr) external onlyOwner {
         require(
             workflowStatus == WorkflowStatus.RegisteringVoters,
@@ -73,6 +117,11 @@ contract Voting is Ownable {
 
     // ::::::::::::: PROPOSAL ::::::::::::: //
 
+    /**
+     * @notice  .
+     * @dev     .
+     * @param   _desc  .
+     */
     function addProposal(string calldata _desc) external onlyVoters {
         require(
             workflowStatus == WorkflowStatus.ProposalsRegistrationStarted,
@@ -92,6 +141,11 @@ contract Voting is Ownable {
 
     // ::::::::::::: VOTE ::::::::::::: //
 
+    /**
+     * @notice  .
+     * @dev     .
+     * @param   _id  .
+     */
     function setVote(uint _id) external onlyVoters {
         require(
             workflowStatus == WorkflowStatus.VotingSessionStarted,
@@ -109,6 +163,10 @@ contract Voting is Ownable {
 
     // ::::::::::::: STATE ::::::::::::: //
 
+    /**
+     * @notice  .
+     * @dev     .
+     */
     function startProposalsRegistering() external onlyOwner {
         require(
             workflowStatus == WorkflowStatus.RegisteringVoters,
@@ -126,6 +184,10 @@ contract Voting is Ownable {
         );
     }
 
+    /**
+     * @notice  .
+     * @dev     .
+     */
     function endProposalsRegistering() external onlyOwner {
         require(
             workflowStatus == WorkflowStatus.ProposalsRegistrationStarted,
@@ -138,6 +200,10 @@ contract Voting is Ownable {
         );
     }
 
+    /**
+     * @notice  .
+     * @dev     .
+     */
     function startVotingSession() external onlyOwner {
         require(
             workflowStatus == WorkflowStatus.ProposalsRegistrationEnded,
@@ -150,6 +216,10 @@ contract Voting is Ownable {
         );
     }
 
+    /**
+     * @notice  .
+     * @dev     .
+     */
     function endVotingSession() external onlyOwner {
         require(
             workflowStatus == WorkflowStatus.VotingSessionStarted,
@@ -162,6 +232,10 @@ contract Voting is Ownable {
         );
     }
 
+    /**
+     * @notice  .
+     * @dev     .
+     */
     function tallyVotes() external onlyOwner {
         require(
             workflowStatus == WorkflowStatus.VotingSessionEnded,

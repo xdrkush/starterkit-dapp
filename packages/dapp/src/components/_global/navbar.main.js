@@ -1,16 +1,15 @@
 import {
     Box,
     Flex,
-    Stack,
     Button,
-    Link as CLink,
     useColorModeValue,
     Menu,
     MenuButton,
     MenuList,
     MenuGroup,
     MenuDivider,
-    MenuItem
+    MenuItem,
+    Text
 } from "@chakra-ui/react"
 import Link from 'next/link'
 import { ColorModeSwitcher } from "@/components/ColorSwitcher.js"
@@ -21,7 +20,7 @@ import { VotingContext } from "@/contexts";
 
 export function Navbar({ isOpen }) {
     const { isConnected } = useAccount()
-    const { isOwner } = useContext(VotingContext)
+    const { isOwner, workflowStatus, winningProposalID } = useContext(VotingContext)
 
     console.log('Navbar', isOwner)
 
@@ -59,39 +58,56 @@ export function Navbar({ isOpen }) {
                     </Box>
                 </Flex>
 
-                {/* COLOR MODE */}
-                <Box>
-                    <Stack
-                        flex={{ base: 1, md: 0 }}
-                        justify={"flex-end"}
-                        direction={"row"}
-                    >
-
-                        <ConnectButton
-                            accountStatus={{
-                                smallScreen: "avatar",
-                                largeScreen: "full",
-                            }}
-                            chainStatus={{
-                                smallScreen: "none",
-                                largeScreen: "full",
-                            }}
-                        />
-                        <ColorModeSwitcher justifySelf="flex-end" />
-                    </Stack>
+                <Box px={2}>
+                    <Text fontSize={"2xl"}>Status: {String(workflowStatus)}</Text>
+                </Box>
+                <Box px={2}>
+                    <Text fontSize={"2xl"}>Winner: {String(winningProposalID)}</Text>
                 </Box>
 
-                <Box>
+                {/* COLOR MODE */}
+                <Box px={1}>
+                    <ColorModeSwitcher justifySelf="flex-end" />
+                </Box>
+
+                <Box px={1}>
                     <Menu>
-                        <MenuButton as={Button}>
-                            {!isConnected ? "Connect" : "Profile"}
-                        </MenuButton>
-                        <MenuList>
-                            <MenuGroup title='Profile'>
-                                <MenuItem><Link href="/account">My Account</Link></MenuItem>
-                                <MenuItem><Link href="/proposals">Proposals</Link></MenuItem>
-                            </MenuGroup>
-                            <MenuDivider />
+                        {!isConnected ? (
+                            <ConnectButton
+                                accountStatus={{
+                                    smallScreen: "avatar",
+                                    largeScreen: "full",
+                                }}
+                                chainStatus={{
+                                    smallScreen: "none",
+                                    largeScreen: "full",
+                                }}
+                            />
+                        ) : (
+                            <MenuButton as={Button}>
+                                Profile
+                            </MenuButton>
+                        )}
+                        <MenuList px={2}>
+                            <ConnectButton
+                                accountStatus={{
+                                    smallScreen: "avatar",
+                                    largeScreen: "full",
+                                }}
+                                chainStatus={{
+                                    smallScreen: "none",
+                                    largeScreen: "full",
+                                }}
+                            />
+                            {isConnected && (
+                                <>
+                                    <MenuGroup title='Profile'>
+                                        <Link href="/account"><MenuItem>My Account</MenuItem></Link>
+                                        <Link href="/proposals"><MenuItem>Proposals</MenuItem></Link>
+                                    </MenuGroup>
+                                    <MenuDivider />
+                                </>
+                            )}
                             {isOwner && (
                                 <MenuGroup title='Admin'>
                                     <MenuItem><Link href="/admin">Dashboard</Link></MenuItem>
@@ -101,7 +117,7 @@ export function Navbar({ isOpen }) {
                     </Menu>
                 </Box>
 
-            </Flex>
-        </Box>
+            </Flex >
+        </Box >
     )
 }
