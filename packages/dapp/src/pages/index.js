@@ -1,67 +1,47 @@
 // page : /
-import MainLayout from "@/components/layout";
-import { useToken } from "@/hooks/useToken"
-import { useLib } from "@/hooks/useLib"
-import { useState } from "react";
+import MainLayout from "@/components/layouts/Main.layout";
+import { VotingContext } from "@/contexts/index";
 
 import {
   Box,
-  FormControl,
-  FormLabel,
-  Input,
-  Stack,
-  Button,
   Heading,
 } from '@chakra-ui/react';
+import { useContext } from "react";
+import { useAccount } from "wagmi";
 
 export default function Home() {
+  const { isConnected } = useAccount()
   // Call hook
-  const { addressToken, totalSupply, name, sendTx } = useToken();
-  const { addressLib, ownerLib } = useLib();
-
-  // State
-  const [addressTo, setAddressTo] = useState()
-  const [amount, setAmount] = useState()
+  const { address, owner, isOwner, isVoter } = useContext(VotingContext);
 
   return (
     <MainLayout>
 
-      <Heading>Welcome, </Heading>
+      <Heading>Welcome to voting contract </Heading>
 
-      <Box>
-        <p>addr lib: {addressLib} </p>
-        <p>owner lib: {ownerLib} </p>
-        <p>addr token: {addressToken} </p>
-        <p>name token: {name} </p>
-        <p>supply token: {totalSupply} </p>
-      </Box>
+      {!isConnected ? (
+        <Box>
 
-      <Box
-        rounded={'lg'}
-        boxShadow={'lg'}
-        p={8}>
-        <Stack spacing={4}>
-          <FormControl id="email">
-            <FormLabel>Address ethereum To / Destinataire</FormLabel>
-            <Input type="email" onChange={(e) => setAddressTo(e.target.value)} />
-          </FormControl>
-          <FormControl id="password">
-            <FormLabel>Amount / Montant</FormLabel>
-            <Input type="number" onChange={(e) => setAmount(e.target.value)} />
-          </FormControl>
-          <Stack spacing={10}>
-            <Button
-              bg={'primary.500'}
-              color={'white'}
-              onClick={() => sendTx(addressTo, amount)}
-              _hover={{
-                bg: 'primary.900',
-              }}>
-              Transfert
-            </Button>
-          </Stack>
-        </Stack>
-      </Box>
+          <p>Vous devez être connecté pour accèder au vote</p>
+
+        </Box>
+      ) : (
+        <Box>
+
+          <p>Address contract voting: {address} </p>
+          <p>The owner on contract voting: {owner} </p>
+
+          {isVoter && (
+            <p>Owner: You are voter ! 🎉</p>
+          )}
+
+          {isOwner && (
+            <p>Owner: You are owner ! 🎉</p>
+          )}
+        </Box>
+      )}
+
+
     </MainLayout>
   )
 }

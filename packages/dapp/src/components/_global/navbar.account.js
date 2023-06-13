@@ -39,7 +39,7 @@ export function Navbar({ isOpen }) {
                         }}
                         fontWeight="bold"
                     >
-                        Sylver Contract
+                        Account Voting Contract
                     </Link>
                 </Flex>
 

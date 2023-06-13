@@ -1,43 +1,7 @@
 {
-    "token": {
+    "voting": {
         "address": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
         "abi": [
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "initialSupply",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "nonpayable",
-                "type": "constructor"
-            },
-            {
-                "anonymous": false,
-                "inputs": [
-                    {
-                        "indexed": true,
-                        "internalType": "address",
-                        "name": "owner",
-                        "type": "address"
-                    },
-                    {
-                        "indexed": true,
-                        "internalType": "address",
-                        "name": "spender",
-                        "type": "address"
-                    },
-                    {
-                        "indexed": false,
-                        "internalType": "uint256",
-                        "name": "value",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "Approval",
-                "type": "event"
-            },
             {
                 "anonymous": false,
                 "inputs": [
@@ -61,163 +25,168 @@
                 "anonymous": false,
                 "inputs": [
                     {
-                        "indexed": true,
-                        "internalType": "address",
-                        "name": "from",
-                        "type": "address"
-                    },
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "proposalId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "ProposalRegistered",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
                     {
-                        "indexed": true,
+                        "indexed": false,
                         "internalType": "address",
-                        "name": "to",
+                        "name": "voter",
                         "type": "address"
                     },
                     {
                         "indexed": false,
                         "internalType": "uint256",
-                        "name": "value",
+                        "name": "proposalId",
                         "type": "uint256"
                     }
                 ],
-                "name": "Transfer",
+                "name": "Voted",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "voterAddress",
+                        "type": "address"
+                    }
+                ],
+                "name": "VoterRegistered",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": false,
+                        "internalType": "enum Voting.WorkflowStatus",
+                        "name": "previousStatus",
+                        "type": "uint8"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "enum Voting.WorkflowStatus",
+                        "name": "newStatus",
+                        "type": "uint8"
+                    }
+                ],
+                "name": "WorkflowStatusChange",
                 "type": "event"
             },
             {
                 "inputs": [
                     {
-                        "internalType": "address",
-                        "name": "owner",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "spender",
-                        "type": "address"
-                    }
-                ],
-                "name": "allowance",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "spender",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "approve",
-                "outputs": [
-                    {
-                        "internalType": "bool",
-                        "name": "",
-                        "type": "bool"
-                    }
-                ],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "account",
-                        "type": "address"
-                    }
-                ],
-                "name": "balanceOf",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "decimals",
-                "outputs": [
-                    {
-                        "internalType": "uint8",
-                        "name": "",
-                        "type": "uint8"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "spender",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "subtractedValue",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "decreaseAllowance",
-                "outputs": [
-                    {
-                        "internalType": "bool",
-                        "name": "",
-                        "type": "bool"
-                    }
-                ],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "spender",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "addedValue",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "increaseAllowance",
-                "outputs": [
-                    {
-                        "internalType": "bool",
-                        "name": "",
-                        "type": "bool"
-                    }
-                ],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "name",
-                "outputs": [
-                    {
                         "internalType": "string",
-                        "name": "",
+                        "name": "_desc",
                         "type": "string"
+                    }
+                ],
+                "name": "addProposal",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_addr",
+                        "type": "address"
+                    }
+                ],
+                "name": "addVoter",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "endProposalsRegistering",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "endVotingSession",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "_id",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "getOneProposal",
+                "outputs": [
+                    {
+                        "components": [
+                            {
+                                "internalType": "string",
+                                "name": "description",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "voteCount",
+                                "type": "uint256"
+                            }
+                        ],
+                        "internalType": "struct Voting.Proposal",
+                        "name": "",
+                        "type": "tuple"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_addr",
+                        "type": "address"
+                    }
+                ],
+                "name": "getVoter",
+                "outputs": [
+                    {
+                        "components": [
+                            {
+                                "internalType": "bool",
+                                "name": "isRegistered",
+                                "type": "bool"
+                            },
+                            {
+                                "internalType": "bool",
+                                "name": "hasVoted",
+                                "type": "bool"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "votedProposalId",
+                                "type": "uint256"
+                            }
+                        ],
+                        "internalType": "struct Voting.Voter",
+                        "name": "",
+                        "type": "tuple"
                     }
                 ],
                 "stateMutability": "view",
@@ -244,81 +213,36 @@
                 "type": "function"
             },
             {
-                "inputs": [],
-                "name": "symbol",
-                "outputs": [
-                    {
-                        "internalType": "string",
-                        "name": "",
-                        "type": "string"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "totalSupply",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
                 "inputs": [
                     {
-                        "internalType": "address",
-                        "name": "to",
-                        "type": "address"
-                    },
-                    {
                         "internalType": "uint256",
-                        "name": "amount",
+                        "name": "_id",
                         "type": "uint256"
                     }
                 ],
-                "name": "transfer",
-                "outputs": [
-                    {
-                        "internalType": "bool",
-                        "name": "",
-                        "type": "bool"
-                    }
-                ],
+                "name": "setVote",
+                "outputs": [],
                 "stateMutability": "nonpayable",
                 "type": "function"
             },
             {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "from",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "to",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "transferFrom",
-                "outputs": [
-                    {
-                        "internalType": "bool",
-                        "name": "",
-                        "type": "bool"
-                    }
-                ],
+                "inputs": [],
+                "name": "startProposalsRegistering",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "startVotingSession",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "tallyVotes",
+                "outputs": [],
                 "stateMutability": "nonpayable",
                 "type": "function"
             },
@@ -334,31 +258,28 @@
                 "outputs": [],
                 "stateMutability": "nonpayable",
                 "type": "function"
-            }
-        ]
-    },
-    "lib": {
-        "address": "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
-        "abi": [
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "_address",
-                        "type": "address"
-                    }
-                ],
-                "stateMutability": "nonpayable",
-                "type": "constructor"
             },
             {
                 "inputs": [],
-                "name": "getOwner",
+                "name": "winningProposalID",
                 "outputs": [
                     {
-                        "internalType": "address",
+                        "internalType": "uint256",
                         "name": "",
-                        "type": "address"
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "workflowStatus",
+                "outputs": [
+                    {
+                        "internalType": "enum Voting.WorkflowStatus",
+                        "name": "",
+                        "type": "uint8"
                     }
                 ],
                 "stateMutability": "view",

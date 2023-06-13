@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { ChakraProvider } from '@chakra-ui/react'
 import { RainbowKitProvider, connectorsForWallets } from "@rainbow-me/rainbowkit";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
@@ -16,6 +17,8 @@ import {
     trustWallet
 } from '@rainbow-me/rainbowkit/wallets';
 
+import { VotingProvider } from '@/providers/VotingProvider';
+
 const { chains, publicClient } = configureChains(
     [mainnet, sepolia, polygon, polygonMumbai, hardhat],
     [
@@ -23,10 +26,10 @@ const { chains, publicClient } = configureChains(
         jsonRpcProvider({
             // Check if the chain ID matches the Polygon Mumbai test network
             rpc: (chain) => {
-              if (chain.id !== polygonMumbai.id) return null;
-              return { http: chain.rpcUrls.default };
+                if (chain.id !== polygonMumbai.id) return null;
+                return { http: chain.rpcUrls.default };
             },
-          }),
+        }),
     ]
 );
 
@@ -59,11 +62,19 @@ const config = createConfig({
 });
 
 export default function App({ Component, pageProps }) {
+    // For load rainbowkit, ... only front
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), [])
+
     return (
         <ChakraProvider>
             <WagmiConfig config={config}>
                 <RainbowKitProvider chains={chains}>
-                    <Component {...pageProps} />
+                    {mounted && (
+                        <VotingProvider>
+                            <Component {...pageProps} />
+                        </VotingProvider>
+                    )}
                 </RainbowKitProvider>
             </WagmiConfig>
         </ChakraProvider>
