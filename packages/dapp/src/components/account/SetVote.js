@@ -20,7 +20,7 @@ export function SetVote() {
                     onChange={(e) => setId(e.target.value)}
                 />
             </FormControl>
-            <Button onClick={() => setVote(id)}> Add Voter </Button>
+            <Button onClick={() => setVote(id)}> Set Vote </Button>
         </Box>
     )
 }

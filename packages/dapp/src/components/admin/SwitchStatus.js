@@ -14,30 +14,18 @@ const ButtonStatus = () => {
 
     switch (workflowStatus) {
         case 0:
-            return (
-                <Button onClick={() => startProposalsRegistering()}> startProposalsRegistering </Button>
-            );
+            return <Button onClick={() => startProposalsRegistering()}> startProposalsRegistering </Button>;
         case 1:
-            return (
-                <Button onClick={() => endProposalsRegistering()}> endProposalsRegistering </Button>
-            );
+            return <Button onClick={() => endProposalsRegistering()}> endProposalsRegistering </Button>;
         case 2:
-            return (
-                <Button onClick={() => startVotingSession()}> startVotingSession </Button>
-            );
+            return <Button onClick={() => startVotingSession()}> startVotingSession </Button>;
         case 3:
-            return (
-                <Button onClick={() => endVotingSession()}> endVotingSession </Button>
-            );
+            return <Button onClick={() => endVotingSession()}> endVotingSession </Button>;
         case 4:
-            return (
-                <Button onClick={() => tallyVotes()}> tallyVotes </Button>
-            );
+            return <Button onClick={() => tallyVotes()}> tallyVotes </Button>;
 
         default:
-            return (
-                <Text>Session fini !</Text>
-            );
+            return <Text>Session fini !</Text>;
     }
 }
 

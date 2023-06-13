@@ -8,6 +8,13 @@ import { useContext, useState } from 'react';
 export function GetProposal() {
     const {getOneProposal} = useContext(VotingContext)
     const [id, setId] = useState("")
+    const [proposal, setProposal] = useState({})
+
+    const submit = async () => {
+        const p = await getOneProposal(Number(id))
+        setProposal(p)
+    }
+
 
     return (
         <Box>
@@ -20,7 +27,16 @@ export function GetProposal() {
                     onChange={(e) => setId(e.target.value)}
                 />
             </FormControl>
-            <Button onClick={() => getOneProposal(Number(id))}> Get Proposal </Button>
+            <Button onClick={submit}> Get Proposal </Button>
+
+            {proposal && (
+                <Box display="flex">
+                    <Text> {
+                        "Description: " + String(proposal.description) +
+                        " - VoteCount: " + String(proposal.voteCount)}
+                    </Text>
+                </Box>
+            )}
         </Box>
     )
 }

@@ -7,6 +7,13 @@ import { useContext, useState } from 'react';
 export function GetVoter() {
     const {getVoter} = useContext(VotingContext)
     const [addrVoter, setAddrVoter] = useState("")
+    const [voter, setVoter] = useState({})
+
+    const submit = async () => {
+        const v = await getVoter(addrVoter)
+        console.log('submit', v)
+        setVoter(v)
+    }
 
     return (
         <Box>
@@ -19,7 +26,17 @@ export function GetVoter() {
                     onChange={(e) => setAddrVoter(e.target.value)}
                 />
             </FormControl>
-            <Button onClick={() => getVoter(addrVoter)}> Get Voter </Button>
+            <Button onClick={submit}> Get Voter </Button>
+
+            {voter && (
+                <>
+                    <Text> {
+                        "isRegistered: " + String(voter.isRegistered) + 
+                        " - hasVoted: " + String(voter.hasVoted) + 
+                        " - votedProposalId: " + String(voter.votedProposalId)}
+                    </Text>
+                </>
+            )}
         </Box>
     )
 }

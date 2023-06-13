@@ -6,10 +6,12 @@ import { useAccount, useContractRead, useNetwork } from "wagmi"
 import { isAddress } from 'viem'
 
 import contracts from "@/config/contracts.json"
+import { useError } from './useError';
 
 export function useVoting() {
     const { isConnected, address } = useAccount()
     const { chain } = useNetwork()
+    const { setError } = useError()
     const toast = useToast()
 
     // init state
@@ -35,7 +37,6 @@ export function useVoting() {
         const winProposalID = await voting.read.winningProposalID()
         const wfStatus = await voting.read.workflowStatus()
 
-        console.log('wfStatus', wfStatus)
 
         // Set state hook
         setWinningProposalID(winProposalID)
@@ -64,7 +65,6 @@ export function useVoting() {
 
     // Admin
     const addVoter = async (_address) => {
-        console.log('addVoter', _address)
         if (!_address) return;
         try {
             const { request } = await prepareWriteContract({
@@ -74,13 +74,12 @@ export function useVoting() {
                 args: [String(_address)]
             })
             const { hash } = await writeContract(request)
-            console.log('addVoter', request, hash)
-        } catch (error) {
-            throw error
+            return hash
+        } catch (err) {
+            setError(err.message)
         }
     }
     const startProposalsRegistering = async () => {
-        console.log('startProposalsRegistering')
         try {
             const { request } = await prepareWriteContract({
                 address: contracts.voting.address,
@@ -88,13 +87,12 @@ export function useVoting() {
                 functionName: 'startProposalsRegistering'
             })
             const { hash } = await writeContract(request)
-            console.log('startProposalsRegistering', request, hash)
-        } catch (error) {
-            throw error
+            return hash
+        } catch (err) {
+            setError(err.message)
         }
     }
     const endProposalsRegistering = async () => {
-        console.log('endProposalsRegistering')
         try {
             const { request } = await prepareWriteContract({
                 address: contracts.voting.address,
@@ -102,13 +100,12 @@ export function useVoting() {
                 functionName: 'endProposalsRegistering'
             })
             const { hash } = await writeContract(request)
-            console.log('endProposalsRegistering', request, hash)
-        } catch (error) {
-            throw error
+            return hash
+        } catch (err) {
+            setError(err.message)
         }
     }
     const startVotingSession = async () => {
-        console.log('startVotingSession')
         try {
             const { request } = await prepareWriteContract({
                 address: contracts.voting.address,
@@ -116,13 +113,12 @@ export function useVoting() {
                 functionName: 'startVotingSession'
             })
             const { hash } = await writeContract(request)
-            console.log('startVotingSession', request, hash)
-        } catch (error) {
-            throw error
+            return hash
+        } catch (err) {
+            setError(err.message)
         }
     }
     const endVotingSession = async () => {
-        console.log('endVotingSession')
         try {
             const { request } = await prepareWriteContract({
                 address: contracts.voting.address,
@@ -130,13 +126,12 @@ export function useVoting() {
                 functionName: 'endVotingSession'
             })
             const { hash } = await writeContract(request)
-            console.log('endVotingSession', request, hash)
-        } catch (error) {
-            throw error
+            return hash
+        } catch (err) {
+            setError(err.message)
         }
     }
     const tallyVotes = async () => {
-        console.log('tallyVotes')
         try {
             const { request } = await prepareWriteContract({
                 address: contracts.voting.address,
@@ -144,14 +139,13 @@ export function useVoting() {
                 functionName: 'tallyVotes'
             })
             const { hash } = await writeContract(request)
-            console.log('tallyVotes', request, hash)
-        } catch (error) {
-            throw error
+            return hash
+        } catch (err) {
+            setError(err.message)
         }
     }
 
     const getVoter = async (_address) => {
-        console.log('getVoter', _address)
         if (!_address) return;
         try {
             const data = await readContract({
@@ -160,10 +154,9 @@ export function useVoting() {
                 functionName: 'getVoter',
                 args: [String(_address)]
             })
-            console.log('getVoter', data)
             return data
-        } catch (error) {
-            throw error
+        } catch (err) {
+            setError(err.message)
         }
     }
     const getOneProposal = async (_id) => {
@@ -175,14 +168,12 @@ export function useVoting() {
                 functionName: 'getOneProposal',
                 args: [Number(_id)]
             })
-            console.log('getOneProposal', data)
             return data
-        } catch (error) {
-            throw error
+        } catch (err) {
+            setError(err.message)
         }
     }
     const addProposal = async (_desc) => {
-        console.log('addProposal', _desc)
         if (!_desc) return;
         try {
             const { request } = await prepareWriteContract({
@@ -192,13 +183,12 @@ export function useVoting() {
                 args: [String(_desc)]
             })
             const { hash } = await writeContract(request)
-            console.log('addProposal', request, hash)
-        } catch (error) {
-            throw error
+            return hash
+        } catch (err) {
+            setError(err.message)
         }
     }
     const setVote = async (_id) => {
-        console.log('setVote', _id)
         if (!_id) return;
         try {
             const { request } = await prepareWriteContract({
@@ -208,29 +198,26 @@ export function useVoting() {
                 args: [Number(_id)]
             })
             const { hash } = await writeContract(request)
-            console.log('setVote', request, hash)
-        } catch (error) {
-            throw error
+            return hash
+        } catch (err) {
+            setError(err.message)
         }
     }
 
     // export from hook
     return {
+        // Static
         address: contracts.voting.address,
-
         // State contract
         contract, owner, isOwner, isVoter,
         winningProposalID, workflowStatus,
-
         // Fn
         // admin
         addVoter, startProposalsRegistering, endProposalsRegistering,
         startVotingSession, endVotingSession, tallyVotes,
         // voter
         getVoter, getOneProposal, addProposal, setVote,
-
         // Event
         listVoters
-
     }
 }

@@ -4,7 +4,7 @@ import { RainbowKitProvider, connectorsForWallets } from "@rainbow-me/rainbowkit
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { mainnet, sepolia, hardhat, polygon, polygonMumbai } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
-// import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 
 import {
     injectedWallet,
@@ -23,13 +23,13 @@ const { chains, publicClient } = configureChains(
     [mainnet, sepolia, polygon, polygonMumbai, hardhat],
     [
         publicProvider(),
-        // jsonRpcProvider({
-        //     // Check if the chain ID matches the Polygon Mumbai test network
-        //     rpc: (chain) => {
-        //         if (chain.id !== polygonMumbai.id) return null;
-        //         return { http: chain.rpcUrls.default };
-        //     },
-        // }),
+        jsonRpcProvider({
+            // Check if the chain ID matches the Polygon Mumbai test network
+            rpc: (chain) => {
+                if (chain.id !== polygonMumbai.id) return null;
+                return { http: chain.rpcUrls.default };
+            },
+        })
     ]
 );
 
