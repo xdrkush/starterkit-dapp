@@ -2,20 +2,37 @@
 pragma solidity 0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+/**
+ * @title A simulator for Voting
+ * @author Alyra School
+ * @notice You can use this contract for only the most basic simulation
+ * @dev All function calls are currently implemented without side effects
+ * @custom:experimental This is an experimental contract.
+ */
+
 contract Voting is Ownable {
+    // @notice ID of proposal winning vote
     uint public winningProposalID;
 
+    // @notice . structure of voter (registered)
+    // @notice . isRegistred for check if admin on contract validate
+    // @notice . hasVoted for check if voter has already voted
+    // @notice . votedProposalId for check for which proposal has voted
     struct Voter {
         bool isRegistered;
         bool hasVoted;
         uint votedProposalId;
     }
 
+    // @notice . structure of proposal (By voter)
+    // @notice . description of proposal info
+    // @notice . voteCount for check number vote contain proposal
     struct Proposal {
         string description;
         uint voteCount;
     }
 
+    // @notice . Status of contract for actions
     enum WorkflowStatus {
         RegisteringVoters,
         ProposalsRegistrationStarted,
@@ -25,59 +42,39 @@ contract Voting is Ownable {
         VotesTallied
     }
 
+    // @notice . static status of contract
     WorkflowStatus public workflowStatus;
+    // @notice . Array of proposal (active)
     Proposal[] proposalsArray;
+    // @notice . Mapping of struct Voter
     mapping(address => Voter) voters;
 
-    /**
-     * @notice  .
-     * @dev     .
-     * @param   voterAddress  .
-     */
+    // @notice  . Emitted when new voter is registered by admin of contract
     event VoterRegistered(address voterAddress);
-    
-    /**
-     * @notice  .
-     * @dev     .
-     * @param   previousStatus  .
-     * @param   newStatus  .
-     */
+
+    // @notice  . Emmited when the workflow status has changed by admin of contract
     event WorkflowStatusChange(
         WorkflowStatus previousStatus,
         WorkflowStatus newStatus
     );
-    /**
-     * @notice  .
-     * @dev     .
-     * @param   proposalId  .
-     */
+    // @notice  . Emmited when new voter has registred by admin of contract
     event ProposalRegistered(uint proposalId);
-    /**
-     * @notice  .
-     * @dev     .
-     * @param   voter  .
-     * @param   proposalId  .
-     */
+    // @notice  . Emmited when voters vote on proposal
     event Voted(address voter, uint proposalId);
 
-    /**
-     * @notice  .
-     * @dev     .
-     */
+    // @notice  . Check if msg.sender is a Voter
     modifier onlyVoters() {
         require(voters[msg.sender].isRegistered, "You're not a voter");
         _;
     }
 
-    // on peut faire un modifier pour les états
-
     // ::::::::::::: GETTERS ::::::::::::: //
 
     /**
-     * @notice  .
-     * @dev     .
-     * @param   _addr  .
-     * @return  Voter  .
+     * @notice  . Get one voter on mapping voters with address params
+     * @dev     . By struct Voter
+     * @param   _addr  . address of the voter to be retrieved
+     * @return  Voter  . struct of voter by the address
      */
     function getVoter(
         address _addr
@@ -86,10 +83,10 @@ contract Voting is Ownable {
     }
 
     /**
-     * @notice  .
-     * @dev     .
-     * @param   _id  .
-     * @return  Proposal  .
+     * @notice  . Get one proposal by id
+     * @dev     . By struct Proposal
+     * @param   _id  . uint of the id on proposal to be retrieved
+     * @return  Proposal  . Struct of proposal by the id
      */
     function getOneProposal(
         uint _id
@@ -100,9 +97,10 @@ contract Voting is Ownable {
     // ::::::::::::: REGISTRATION ::::::::::::: //
 
     /**
-     * @notice  .
-     * @dev     .
-     * @param   _addr  .
+     * @notice  . Add voter by owner on static voters mapping
+     * @dev     . Struct Voter on voters
+     * @dev     . Emit VoterRegistered()
+     * @param   _addr  . Needed address for stocking meta on voter
      */
     function addVoter(address _addr) external onlyOwner {
         require(
@@ -118,9 +116,10 @@ contract Voting is Ownable {
     // ::::::::::::: PROPOSAL ::::::::::::: //
 
     /**
-     * @notice  .
-     * @dev     .
-     * @param   _desc  .
+     * @notice  . Add proposal by voter on static Proposal[]
+     * @dev     . Struct proposal on Proposal[]
+     * @dev     . Emit ProposalRegistered()
+     * @param   _desc  . Needed string for description on proposal
      */
     function addProposal(string calldata _desc) external onlyVoters {
         require(
@@ -142,9 +141,10 @@ contract Voting is Ownable {
     // ::::::::::::: VOTE ::::::::::::: //
 
     /**
-     * @notice  .
-     * @dev     .
-     * @param   _id  .
+     * @notice  . Voting on proposal by voter on voters and proposalArray
+     * @dev     . set Voter on voters & increment voteCount on Proposal
+     * @dev     . emit Voted()
+     * @param   _id  . Needed uint of proposal by voter
      */
     function setVote(uint _id) external onlyVoters {
         require(
@@ -164,8 +164,9 @@ contract Voting is Ownable {
     // ::::::::::::: STATE ::::::::::::: //
 
     /**
-     * @notice  .
-     * @dev     .
+     * @notice  . Change status to Start the registering on Proposal
+     * @dev     . set workflowStatut & create first proposal (0)
+     * @dev     . emit WorkflowStatusChange()
      */
     function startProposalsRegistering() external onlyOwner {
         require(
@@ -185,8 +186,9 @@ contract Voting is Ownable {
     }
 
     /**
-     * @notice  .
-     * @dev     .
+     * @notice  . Change status to Stop the registering on Proposal
+     * @dev     . set workflowStatut
+     * @dev     . emit WorkflowStatusChange()
      */
     function endProposalsRegistering() external onlyOwner {
         require(
@@ -201,8 +203,9 @@ contract Voting is Ownable {
     }
 
     /**
-     * @notice  .
-     * @dev     .
+     * @notice  . Change status to Start the session on voting
+     * @dev     . set workflowStatut
+     * @dev     . emit WorkflowStatusChange()
      */
     function startVotingSession() external onlyOwner {
         require(
@@ -217,8 +220,9 @@ contract Voting is Ownable {
     }
 
     /**
-     * @notice  .
-     * @dev     .
+     * @notice  . Change status to Stop the session on voting
+     * @dev     . set workflowStatut
+     * @dev     . emit WorkflowStatusChange()
      */
     function endVotingSession() external onlyOwner {
         require(
@@ -233,8 +237,9 @@ contract Voting is Ownable {
     }
 
     /**
-     * @notice  .
-     * @dev     .
+     * @notice  . Change status to Tallies votes on proposal by voter & edit the proposal winning ID
+     * @dev     . set workflowStatut & set winningProposalId
+     * @dev     . emit WorkflowStatusChange()
      */
     function tallyVotes() external onlyOwner {
         require(
