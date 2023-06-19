@@ -17,6 +17,7 @@
     "sc:test": "npm run test --workspace=hardhat-project",
     "sc:coverage": "npm run coverage --workspace=hardhat-project",
     "sc:deploy:local": "npm run deploy:local --workspace=hardhat-project",
+    "sc:deploy:goerli": "npm run deploy:goerli --workspace=hardhat-project",
     "sc:clean": "npm run clean --workspace=hardhat-project"
   },
   "engines": {
