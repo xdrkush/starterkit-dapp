@@ -33,7 +33,7 @@ const { chains, publicClient } = configureChains(
     ]
 );
 
-const projectId = "Sylver dApp";
+const projectId = "Voting dApp";
 const connectors = connectorsForWallets([
     {
         groupName: 'Recommended',

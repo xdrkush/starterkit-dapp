@@ -17,6 +17,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from 'wagmi';
 import { useContext } from "react";
 import { VotingContext } from "@/contexts";
+import { workflowStatusSTR } from "@/utils";
 
 export function Navbar({ isOpen }) {
     const { isConnected } = useAccount()
@@ -58,12 +59,19 @@ export function Navbar({ isOpen }) {
                     </Box>
                 </Flex>
 
-                <Box px={2}>
-                    <Text fontSize={"2xl"}>Status: {String(workflowStatus)}</Text>
-                </Box>
-                <Box px={2}>
-                    <Text fontSize={"2xl"}>Winner: {String(winningProposalID)}</Text>
-                </Box>
+                {isConnected && (
+                    <>
+                        <Box px={2}>
+                            <Text fontSize={"2xl"}>{workflowStatusSTR[String(workflowStatus)]}</Text>
+                        </Box>
+
+                        {Number(winningProposalID) !== 0 && (
+                            <Box px={2}>
+                                <Text fontSize={"2xl"}>Winner: {String(winningProposalID)}</Text>
+                            </Box>
+                        )}
+                    </>
+                )}
 
                 {/* COLOR MODE */}
                 <Box px={1}>

@@ -23,7 +23,6 @@ const ButtonStatus = () => {
             return <Button onClick={() => endVotingSession()}> endVotingSession </Button>;
         case 4:
             return <Button onClick={() => tallyVotes()}> tallyVotes </Button>;
-
         default:
             return <Text>Session fini !</Text>;
     }
@@ -35,8 +34,8 @@ export function SwitchStatus() {
     return (
         <Box>
             <Text fontSize="2xl">SwitchStatus (Status: {workflowStatus})</Text>
-
-            {workflowStatus && (
+            
+            {workflowStatus >= 0 && (
                 <ButtonStatus />
             )}
         </Box>

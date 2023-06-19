@@ -11,7 +11,6 @@ export function GetVoter() {
 
     const submit = async () => {
         const v = await getVoter(addrVoter)
-        console.log('submit', v)
         setVoter(v)
     }
 

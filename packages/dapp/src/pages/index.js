@@ -21,13 +21,11 @@ export default function Home() {
 
       {!isConnected ? (
         <Box>
-
           <p>Vous devez être connecté pour accèder au vote</p>
 
         </Box>
       ) : (
         <Box>
-
           <p>Address contract voting: {address} </p>
           <p>The owner on contract voting: {owner} </p>
 

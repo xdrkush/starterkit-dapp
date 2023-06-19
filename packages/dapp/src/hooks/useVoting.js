@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@chakra-ui/react';
 
-import { getWalletClient, getContract, prepareWriteContract, writeContract, readContract } from '@wagmi/core'
-import { useAccount, useContractRead, useNetwork } from "wagmi"
-import { isAddress } from 'viem'
+import { getWalletClient, getContract, prepareWriteContract, writeContract, readContract, watchContractEvent } from '@wagmi/core'
+import { useAccount, useConfig, useContractEvent, useNetwork, useWebSocketPublicClient } from "wagmi"
+import { decodeEventLog, isAddress, parseAbiItem } from 'viem'
 
 import contracts from "@/config/contracts.json"
 import { useError } from './useError';
@@ -22,6 +22,7 @@ export function useVoting() {
     const [winningProposalID, setWinningProposalID] = useState(null);
     const [workflowStatus, setWorkflowStatus] = useState(null);
     const [listVoters, setListVoters] = useState([]);
+    const webSocketPublicClient = useWebSocketPublicClient()
 
     // Load contract
     const loadContract = async () => {
@@ -36,7 +37,6 @@ export function useVoting() {
         const owner = isAddress(await voting.read.owner()) ? await voting.read.owner() : null
         const winProposalID = await voting.read.winningProposalID()
         const wfStatus = await voting.read.workflowStatus()
-
 
         // Set state hook
         setWinningProposalID(winProposalID)
@@ -62,6 +62,72 @@ export function useVoting() {
             })
         }
     }, [isConnected, address, chain?.id])
+
+    // Event
+    useEffect(() => {
+        const listen = async () => {
+            const filter = await contract.createEventFilter({
+                address: contracts.voting.address,
+                event: parseAbiItem('event VoterRegistered(address voterAddress)')
+            })
+
+            const logs = await publicClient.getFilterLogs({ filter })
+
+            console.log('listen', logs)
+        }
+        if (contract) listen()
+    }, [contract])
+    
+    watchContractEvent(
+        {
+            address: contracts.voting.address,
+            abi: contracts.voting.abi,
+            eventName: 'VoterRegistered',
+        },
+        (logs) => {
+            console.log("event: VoterRegistered - ", logs)
+            for (const log of logs) {
+                const topics = decodeEventLog({
+                    abi: contracts.voting.abi,
+                    data: log.data,
+                    topics: log.topics
+                });
+                console.log('i', topics)
+            }
+        },
+    )
+
+    watchContractEvent(
+        {
+            address: contracts.voting.address,
+            abi: contracts.voting.abi,
+            eventName: 'WorkflowStatusChange',
+        },
+        (log) => {
+            console.log("event: WorkflowStatusChange - ", log)
+            setWorkflowStatus(log[0].args.newStatus)
+        },
+    )
+
+    useContractEvent({
+        address: contracts.voting.address,
+        abi: contracts.voting.abi,
+        eventName: 'VoterRegistered',
+        listener(log) {
+            console.log("useEvent", log)
+            for (const log of logs) {
+                const topics = decodeEventLog({
+                    abi: contracts.voting.abi,
+                    data: log.data,
+                    topics: log.topics
+                });
+                console.log('i', topics)
+            }
+
+            setNewEvent({ log })
+
+        },
+    })
 
     // Admin
     const addVoter = async (_address) => {
@@ -145,6 +211,7 @@ export function useVoting() {
         }
     }
 
+    // Voter
     const getVoter = async (_address) => {
         if (!_address) return;
         try {

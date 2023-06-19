@@ -15,7 +15,6 @@ export function GetProposal() {
         setProposal(p)
     }
 
-
     return (
         <Box>
             <Text fontSize="2xl">GetProposal ( {id} )</Text>
