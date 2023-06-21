@@ -19,7 +19,7 @@ export function GetProposal() {
         <Box>
             <Text fontSize="2xl">GetProposal ( {id} )</Text>
             <FormControl>
-                <FormLabel>Target address</FormLabel>
+                <FormLabel>Target Proposal (uint)</FormLabel>
                 <Input
                     focusBorderColor={id.length === 42 ? "green.500" : "red.500"}
                     value={id}
@@ -28,7 +28,7 @@ export function GetProposal() {
             </FormControl>
             <Button onClick={submit}> Get Proposal </Button>
 
-            {proposal && (
+            {proposal && proposal.description && (
                 <Box display="flex">
                     <Text> {
                         "Description: " + String(proposal.description) +

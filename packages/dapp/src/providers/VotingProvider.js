@@ -16,7 +16,7 @@ export const VotingProvider = ({ children }) => {
         // voter
         getVoter, getOneProposal, addProposal, setVote,
         // Event
-        listVoters
+        listVoters, proposalsRegistred, historyVotes
     } = useVoting()
 
     // Memory
@@ -26,7 +26,7 @@ export const VotingProvider = ({ children }) => {
         addVoter, startProposalsRegistering, endProposalsRegistering,
         startVotingSession, endVotingSession, tallyVotes,
         getVoter, getOneProposal, addProposal, setVote,
-        listVoters
+        listVoters, proposalsRegistred, historyVotes
 
     }), [
         address, contract, owner, isOwner, isVoter,
@@ -34,7 +34,7 @@ export const VotingProvider = ({ children }) => {
         addVoter, startProposalsRegistering, endProposalsRegistering,
         startVotingSession, endVotingSession, tallyVotes,
         getVoter, getOneProposal, addProposal, setVote,
-        listVoters
+        listVoters, proposalsRegistred, historyVotes
 
     ])
 

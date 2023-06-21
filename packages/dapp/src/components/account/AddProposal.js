@@ -13,14 +13,14 @@ export function AddProposal() {
         <Box>
             <Text fontSize="2xl">CreateProposal ( {description} )</Text>
             <FormControl>
-                <FormLabel>Target address</FormLabel>
+                <FormLabel>Target Proposal (string)</FormLabel>
                 <Input
-                    focusBorderColor={description.length === 42 ? "green.500" : "red.500"}
+                    focusBorderColor={description.length >= 1 ? "green.500" : "red.500"}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
             </FormControl>
-            <Button onClick={() => addProposal(description)}> Create Proposal </Button>
+            <Button onClick={() => addProposal(description)} disabled={description.length >= 1 ? false : true}> Create Proposal </Button>
         </Box>
     )
 }

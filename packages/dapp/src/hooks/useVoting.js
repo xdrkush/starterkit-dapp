@@ -3,7 +3,9 @@ import { useToast } from '@chakra-ui/react';
 
 import { getWalletClient, getContract, prepareWriteContract, writeContract, readContract, watchContractEvent } from '@wagmi/core'
 import { useAccount, useConfig, useContractEvent, useNetwork, useWebSocketPublicClient } from "wagmi"
-import { decodeEventLog, isAddress, parseAbiItem } from 'viem'
+import { decodeEventLog, isAddress, createPublicClient, http, parseAbiItem } from 'viem'
+import { hardhat } from 'viem/chains'
+
 
 import contracts from "@/config/contracts.json"
 import { useError } from './useError';
@@ -22,7 +24,33 @@ export function useVoting() {
     const [winningProposalID, setWinningProposalID] = useState(null);
     const [workflowStatus, setWorkflowStatus] = useState(null);
     const [listVoters, setListVoters] = useState([]);
-    const webSocketPublicClient = useWebSocketPublicClient()
+    const [proposalsRegistred, setProposalsRegistred] = useState([]);
+    const [historyVotes, setHistoryVotes] = useState([]);
+    const [historyWorkflowStatus, setHistoryWorkflowStatus] = useState([]);
+
+    // Viem client
+    const client = createPublicClient({
+        chain: hardhat,
+        transport: http(),
+    })
+
+    // Init
+    useEffect(() => {
+        if (!isConnected) return;
+        try {
+            loadContract()
+            getEventsHistory()
+        } catch (error) {
+            toast({
+                title: 'Error Contract !',
+                description: "Impossible de trouver le contract.",
+                status: 'error',
+                duration: 9000,
+                position: 'top-right',
+                isClosable: true
+            })
+        }
+    }, [isConnected, address, chain?.id])
 
     // Load contract
     const loadContract = async () => {
@@ -45,89 +73,82 @@ export function useVoting() {
         setOwner(owner)
         // setIsVoter()
         setIsOwner((owner === address))
+
     }
 
-    useEffect(() => {
-        if (!isConnected) return;
-        try {
-            loadContract()
-        } catch (error) {
-            toast({
-                title: 'Error Contract !',
-                description: "Impossible de trouver le contract.",
-                status: 'error',
-                duration: 9000,
-                position: 'top-right',
-                isClosable: true
-            })
-        }
-    }, [isConnected, address, chain?.id])
+    const getEventsHistory = async () => {
 
-    // Event
-    useEffect(() => {
-        const listen = async () => {
-            const filter = await contract.createEventFilter({
-                address: contracts.voting.address,
-                event: parseAbiItem('event VoterRegistered(address voterAddress)')
-            })
+        // VoterRegistered
+        const logsVoterRegistered = await client.getLogs({
+            // address: contracts.voting.address,
+            // abi: contracts.voting.abi,
+            event: parseAbiItem('event VoterRegistered(address voterAddress)'),
+            fromBlock: 0n,
+            toBlock: 1000n
+        })
+        setListVoters(logsVoterRegistered)
+        console.log('listVoters', logsVoterRegistered, listVoters)
 
-            const logs = await publicClient.getFilterLogs({ filter })
+        // WorkflowStatusChange
+        const logsWorkflowStatusChange = await client.getLogs({
+            // address: contracts.voting.address,
+            // abi: contracts.voting.abi,
+            event: parseAbiItem('event WorkflowStatusChange(uint8 previousStatus,uint8 newStatus)'),
+            fromBlock: 0n,
+            toBlock: 1000n
+        })
+        setHistoryWorkflowStatus(logsWorkflowStatusChange)
+        console.log('historyWorkflowStatus', logsWorkflowStatusChange)
 
-            console.log('listen', logs)
-        }
-        if (contract) listen()
-    }, [contract])
-    
-    watchContractEvent(
-        {
-            address: contracts.voting.address,
-            abi: contracts.voting.abi,
-            eventName: 'VoterRegistered',
-        },
-        (logs) => {
-            console.log("event: VoterRegistered - ", logs)
-            for (const log of logs) {
-                const topics = decodeEventLog({
-                    abi: contracts.voting.abi,
-                    data: log.data,
-                    topics: log.topics
-                });
-                console.log('i', topics)
-            }
-        },
-    )
+        // ProposalRegistered
+        const logsProposalRegistered = await client.getLogs({
+            // address: contracts.voting.address,
+            // abi: contracts.voting.abi,
+            event: parseAbiItem('event ProposalRegistered(uint proposalId)'),
+            fromBlock: 0n,
+            toBlock: 1000n
+        })
+        setProposalsRegistred(logsProposalRegistered)
+        console.log('proposalsRegistred', proposalsRegistred)
 
-    watchContractEvent(
-        {
-            address: contracts.voting.address,
-            abi: contracts.voting.abi,
-            eventName: 'WorkflowStatusChange',
-        },
-        (log) => {
-            console.log("event: WorkflowStatusChange - ", log)
-            setWorkflowStatus(log[0].args.newStatus)
-        },
-    )
+        // Voted
+        const logsHistoryVotes = await client.getLogs({
+            // address: contracts.voting.address,
+            // abi: contracts.voting.abi,
+            event: parseAbiItem('event Voted(address voter, uint proposalId)'),
+            fromBlock: 0n,
+            toBlock: 1000n
+        })
+        setHistoryVotes(logsHistoryVotes)
+        console.log('historyVotes', historyVotes)
 
-    useContractEvent({
+    }
+
+    // Set Workflow status with event WorkflowStatusChange
+    watchContractEvent({
+        address: contracts.voting.address,
+        abi: contracts.voting.abi,
+        eventName: 'WorkflowStatusChange',
+    }, (log) => {
+        setWorkflowStatus(log[0].args.newStatus)
+    })
+    // Set List Voters with event VoterRegistered
+    watchContractEvent({
         address: contracts.voting.address,
         abi: contracts.voting.abi,
         eventName: 'VoterRegistered',
-        listener(log) {
-            console.log("useEvent", log)
-            for (const log of logs) {
-                const topics = decodeEventLog({
-                    abi: contracts.voting.abi,
-                    data: log.data,
-                    topics: log.topics
-                });
-                console.log('i', topics)
-            }
-
-            setNewEvent({ log })
-
-        },
+    }, (log) => {
+        console.log('event VoterRegistred', [...listVoters, log])
+        setListVoters([...listVoters, ...log])
     })
+    // Set List Votes with event Voted
+    // watchContractEvent({
+    //     address: contracts.voting.address,
+    //     abi: contracts.voting.abi,
+    //     eventName: 'Voted',
+    // }, (log) => {
+    //     setHistoryVotes([...historyVotes, log])
+    // })
 
     // Admin
     const addVoter = async (_address) => {
@@ -285,6 +306,6 @@ export function useVoting() {
         // voter
         getVoter, getOneProposal, addProposal, setVote,
         // Event
-        listVoters
+        listVoters, proposalsRegistred, historyVotes, historyWorkflowStatus
     }
 }

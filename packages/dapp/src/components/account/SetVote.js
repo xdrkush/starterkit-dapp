@@ -13,7 +13,7 @@ export function SetVote() {
         <Box>
             <Text fontSize="2xl">SetVote ( {id} )</Text>
             <FormControl>
-                <FormLabel>Target address</FormLabel>
+                <FormLabel>Target Proposal (uint)</FormLabel>
                 <Input
                     focusBorderColor={id.length > 0 ? "green.500" : "red.500"}
                     value={id}

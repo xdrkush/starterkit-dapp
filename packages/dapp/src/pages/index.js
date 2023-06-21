@@ -1,9 +1,11 @@
 // page : /
+import { ListVotes } from "@/components/home/ListVotes";
+import { WinnerProposalId } from "@/components/home/WinnerProposalId";
 import MainLayout from "@/components/layouts/Main.layout";
 import { VotingContext } from "@/contexts/index";
 
 import {
-  Box,
+  Box, Grid,
   Heading,
 } from '@chakra-ui/react';
 import { useContext } from "react";
@@ -36,6 +38,15 @@ export default function Home() {
           {isOwner && (
             <p>Owner: You are owner ! 🎉</p>
           )}
+
+          <Grid py={3} minH={"20vh"}>
+            <WinnerProposalId />
+          </Grid>
+
+          <Grid py={3} minH={"20vh"}>
+            <ListVotes />
+          </Grid>
+
         </Box>
       )}
 

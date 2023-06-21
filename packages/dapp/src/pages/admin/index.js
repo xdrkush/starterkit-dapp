@@ -1,23 +1,48 @@
 // page : /admin
 import AdminLayout from '@/components/layouts/Admin.layout'
-import React from 'react'
+import { useContext, useEffect } from 'react'
 import { AddVoter } from '@/components/admin/AddVoter'
 import { SwitchStatus } from '@/components/admin/SwitchStatus'
-import { Grid, Heading } from '@chakra-ui/react'
+import { Grid, Heading, Spinner, Stack } from '@chakra-ui/react'
+import { ListVoters } from '@/components/admin/ListVoters'
+import { VotingContext } from '@/contexts'
+import { useRouter } from 'next/router'
 
 export default function Admin() {
+  const { isOwner } = useContext(VotingContext)
+  const router = useRouter()
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (!isOwner) router.push('/')
+      console.log("isOwner", isOwner)
+    }, 500)
+  }, [isOwner])
+
   return (
-    <AdminLayout>
-      <Heading>Admin</Heading>
+    <>
+      {!isOwner ? (
+        <Stack direction='row' minH={"100vh"} justify='center' align="center" spacing={4}>
+          <Spinner size='xl' />
+        </Stack>
+      ) : (
+        <AdminLayout>
+          <Heading>Admin</Heading>
 
-      <Grid py={3} minH={"20vh"}>
-        <AddVoter />
-      </Grid>
+          <Grid py={3} minH={"20vh"}>
+            <AddVoter />
+          </Grid>
 
-      <Grid py={3} minH={"20vh"}>
-        <SwitchStatus />
-      </Grid>
+          <Grid py={3} minH={"20vh"}>
+            <SwitchStatus />
+          </Grid>
 
-    </AdminLayout>
+          <Grid py={3} minH={"20vh"}>
+            <ListVoters />
+          </Grid>
+
+        </AdminLayout>
+      )}
+    </>
   )
 }
