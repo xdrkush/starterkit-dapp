@@ -6,9 +6,9 @@ import { useAccount, useConfig, useContractEvent, useNetwork, useWebSocketPublic
 import { decodeEventLog, isAddress, createPublicClient, http, parseAbiItem } from 'viem'
 import { hardhat } from 'viem/chains'
 
-
 import contracts from "@/config/contracts.json"
 import { useError } from './useError';
+import { confetti } from '@/utils';
 
 export function useVoting() {
     const { isConnected, address } = useAccount()
@@ -24,6 +24,7 @@ export function useVoting() {
     const [winningProposalID, setWinningProposalID] = useState(null);
     const [workflowStatus, setWorkflowStatus] = useState(null);
     const [listVoters, setListVoters] = useState([]);
+    const [votingIsConnected, setVotingIsConnected] = useState(null);
     const [proposalsRegistred, setProposalsRegistred] = useState([]);
     const [historyVotes, setHistoryVotes] = useState([]);
     const [historyWorkflowStatus, setHistoryWorkflowStatus] = useState([]);
@@ -52,77 +53,147 @@ export function useVoting() {
         }
     }, [isConnected, address, chain?.id])
 
+    useEffect(() => {
+        if (!address || !isConnected) return
+        checkRoles()
+    }, [address, contract])
+
     // Load contract
     const loadContract = async () => {
-        // get contract with provider connected
-        const walletClient = await getWalletClient()
-        const voting = getContract({
-            address: contracts.voting.address,
-            abi: contracts.voting.abi,
-            walletClient
-        })
+        try {
+            // get contract with provider connected
+            const walletClient = await getWalletClient()
+            const voting = getContract({
+                address: contracts.voting.address,
+                abi: contracts.voting.abi,
+                walletClient
+            })
 
-        const owner = isAddress(await voting.read.owner()) ? await voting.read.owner() : null
-        const winProposalID = await voting.read.winningProposalID()
-        const wfStatus = await voting.read.workflowStatus()
+            const owner = isAddress(await voting.read.owner()) ? await voting.read.owner() : null
+            const wfStatus = await voting.read.workflowStatus()
 
-        // Set state hook
-        setWinningProposalID(winProposalID)
-        setWorkflowStatus(wfStatus)
-        setContract(voting)
-        setOwner(owner)
-        // setIsVoter()
-        setIsOwner((owner === address))
+            
+            // Set state hook
+            setWinningProposalID(await voting.read.winningProposalID())
+            setWorkflowStatus(wfStatus)
+            setContract(voting)
+            setOwner(owner)
+            setIsOwner(owner === address)
+            setVotingIsConnected(true)
 
+            await checkRoles()
+
+        } catch (error) {
+            setError("Impossible de se connecter au contrat, êtes vous sur le bon réseaux ?")
+            setVotingIsConnected(false)
+        }
     }
+
+    const checkRoles = async () => {
+        try {
+            const voter = await getVoter(address)
+            if (voter) setIsVoter(true)
+        } catch (error) {
+            setIsVoter(false)
+        }
+        try {
+            const owner = isAddress(await contract.read.owner()) ? await contract.read.owner() : null
+            if (owner) setIsOwner(owner === address)
+        } catch (error) {
+            setIsOwner(false)
+        }
+
+        await confetti()
+    }
+
+    /**
+     * Event History Log
+     */
 
     const getEventsHistory = async () => {
+        try {
+            // VoterRegistered
+            const logsVoterRegistered = await client.getLogs({
+                // address: contracts.voting.address,
+                // abi: contracts.voting.abi,
+                event: parseAbiItem('event VoterRegistered(address voterAddress)'),
+                fromBlock: 0n,
+                toBlock: 1000n
+            })
+            setListVoters(logsVoterRegistered)
+            console.log('listVoters', logsVoterRegistered, listVoters)
+        } catch (error) {
+            setError(error.message)
+        }
 
-        // VoterRegistered
-        const logsVoterRegistered = await client.getLogs({
-            // address: contracts.voting.address,
-            // abi: contracts.voting.abi,
-            event: parseAbiItem('event VoterRegistered(address voterAddress)'),
-            fromBlock: 0n,
-            toBlock: 1000n
-        })
-        setListVoters(logsVoterRegistered)
-        console.log('listVoters', logsVoterRegistered, listVoters)
+        try {
+            // WorkflowStatusChange
+            const logsWorkflowStatusChange = await client.getLogs({
+                // address: contracts.voting.address,
+                // abi: contracts.voting.abi,
+                event: parseAbiItem('event WorkflowStatusChange(uint8 previousStatus,uint8 newStatus)'),
+                fromBlock: 0n,
+                toBlock: 1000n
+            })
+            setHistoryWorkflowStatus(logsWorkflowStatusChange)
+            console.log('historyWorkflowStatus', logsWorkflowStatusChange)
+        } catch (error) {
+            setError(error.message)
+        }
 
-        // WorkflowStatusChange
-        const logsWorkflowStatusChange = await client.getLogs({
-            // address: contracts.voting.address,
-            // abi: contracts.voting.abi,
-            event: parseAbiItem('event WorkflowStatusChange(uint8 previousStatus,uint8 newStatus)'),
-            fromBlock: 0n,
-            toBlock: 1000n
-        })
-        setHistoryWorkflowStatus(logsWorkflowStatusChange)
-        console.log('historyWorkflowStatus', logsWorkflowStatusChange)
+        try {
+            // ProposalRegistered
+            const logsProposalRegistered = await client.getLogs({
+                // address: contracts.voting.address,
+                // abi: contracts.voting.abi,
+                event: parseAbiItem('event ProposalRegistered(uint proposalId)'),
+                fromBlock: 0n,
+                toBlock: 1000n
+            })
+            setProposalsRegistred(logsProposalRegistered)
+            console.log('proposalsRegistred', logsProposalRegistered)
+        } catch (error) {
+            setError(error.message)
+        }
 
-        // ProposalRegistered
-        const logsProposalRegistered = await client.getLogs({
-            // address: contracts.voting.address,
-            // abi: contracts.voting.abi,
-            event: parseAbiItem('event ProposalRegistered(uint proposalId)'),
-            fromBlock: 0n,
-            toBlock: 1000n
-        })
-        setProposalsRegistred(logsProposalRegistered)
-        console.log('proposalsRegistred', proposalsRegistred)
+        try {
+            // Voted
+            const logsHistoryVotes = await client.getLogs({
+                // address: contracts.voting.address,
+                // abi: contracts.voting.abi,
+                event: parseAbiItem('event Voted(address voter, uint proposalId)'),
+                fromBlock: 0n,
+                toBlock: 1000n
+            })
+            setHistoryVotes(logsHistoryVotes)
+            console.log('historyVotes', logsHistoryVotes)
+        } catch (error) {
+            setError(error.message)
+        }
 
-        // Voted
-        const logsHistoryVotes = await client.getLogs({
-            // address: contracts.voting.address,
-            // abi: contracts.voting.abi,
-            event: parseAbiItem('event Voted(address voter, uint proposalId)'),
-            fromBlock: 0n,
-            toBlock: 1000n
-        })
-        setHistoryVotes(logsHistoryVotes)
-        console.log('historyVotes', historyVotes)
-
+        initWatcher()
     }
+
+    const initWatcher = async () => {
+        try {
+            const filter = await client.createContractEventFilter({
+                abi: contracts.voting.abi,
+                address: contracts.voting.address,
+                eventName: 'VoterRegistered',
+                // fromBlock: 0n,
+                // toBlock: 20n
+            })
+            const logs = await client.getFilterLogs({ filter })
+
+            console.log('logs 1', logs)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    /**
+     * Watcher
+     */
 
     // Set Workflow status with event WorkflowStatusChange
     watchContractEvent({
@@ -133,21 +204,32 @@ export function useVoting() {
         setWorkflowStatus(log[0].args.newStatus)
     })
     // Set List Voters with event VoterRegistered
-    watchContractEvent({
-        address: contracts.voting.address,
-        abi: contracts.voting.abi,
-        eventName: 'VoterRegistered',
-    }, (log) => {
-        console.log('event VoterRegistred', [...listVoters, log])
-        setListVoters([...listVoters, ...log])
-    })
+    // watchContractEvent({
+    //     address: contracts.voting.address,
+    //     abi: contracts.voting.abi,
+    //     eventName: 'VoterRegistered',
+    // }, (log) => {
+    //     console.log('event VoterRegistred', listVoters, [...listVoters, ...log])
+    //     setListVoters([...listVoters, ...log])
+    // })
+
+    // Set List Voters with event VoterRegistered
+    // useContractEvent({
+    //     address: contracts.voting.address,
+    //     abi: contracts.voting.abi,
+    //     eventName: 'VoterRegistered',
+    //     listener(log) {
+    //         console.log(log)
+    //     },
+    // })
+
     // Set List Votes with event Voted
     // watchContractEvent({
     //     address: contracts.voting.address,
     //     abi: contracts.voting.abi,
     //     eventName: 'Voted',
     // }, (log) => {
-    //     setHistoryVotes([...historyVotes, log])
+    //     setHistoryVotes([...historyVotes, ...log])
     // })
 
     // Admin
@@ -161,6 +243,7 @@ export function useVoting() {
                 args: [String(_address)]
             })
             const { hash } = await writeContract(request)
+            await confetti()
             return hash
         } catch (err) {
             setError(err.message)
@@ -174,6 +257,7 @@ export function useVoting() {
                 functionName: 'startProposalsRegistering'
             })
             const { hash } = await writeContract(request)
+            await confetti()
             return hash
         } catch (err) {
             setError(err.message)
@@ -187,6 +271,7 @@ export function useVoting() {
                 functionName: 'endProposalsRegistering'
             })
             const { hash } = await writeContract(request)
+            await confetti()
             return hash
         } catch (err) {
             setError(err.message)
@@ -200,6 +285,7 @@ export function useVoting() {
                 functionName: 'startVotingSession'
             })
             const { hash } = await writeContract(request)
+            await confetti()
             return hash
         } catch (err) {
             setError(err.message)
@@ -213,6 +299,7 @@ export function useVoting() {
                 functionName: 'endVotingSession'
             })
             const { hash } = await writeContract(request)
+            await confetti()
             return hash
         } catch (err) {
             setError(err.message)
@@ -226,6 +313,10 @@ export function useVoting() {
                 functionName: 'tallyVotes'
             })
             const { hash } = await writeContract(request)
+
+            setWinningProposalID(await contract.read.winningProposalID())
+            await confetti()
+
             return hash
         } catch (err) {
             setError(err.message)
@@ -244,7 +335,7 @@ export function useVoting() {
             })
             return data
         } catch (err) {
-            setError(err.message)
+            setError("Vous devez être enregitrer comme voter. " + err.message)
         }
     }
     const getOneProposal = async (_id) => {
@@ -297,7 +388,7 @@ export function useVoting() {
         // Static
         address: contracts.voting.address,
         // State contract
-        contract, owner, isOwner, isVoter,
+        contract, owner, isOwner, isVoter, votingIsConnected,
         winningProposalID, workflowStatus,
         // Fn
         // admin

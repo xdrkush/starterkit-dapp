@@ -9,14 +9,18 @@ export function ListVoters() {
 
     return (
         <Box>
-            <Text fontSize="2xl">List Voter ( {listVoters.length.toString()} )</Text>
+            {listVoters.length > 0 && (
+                <>
+                    <Text fontSize="2xl">List Voter ( {listVoters.length} )</Text>
+                    
+                    {listVoters.map((log, i) => {
+                        return (
+                            <Text key={"voter-" + log.args.voterAddress}>Voter: {log.args.voterAddress}</Text>
+                        )
+                    })}
 
-            {listVoters.length > 0 && listVoters.map((log, i) => {
-                return (
-                    <Text key={"voter-" + log.args.voterAddress}>Voter: {log.args.voterAddress}</Text>
-                )
-            })}
-
+                </>
+            )}
         </Box>
     )
 }

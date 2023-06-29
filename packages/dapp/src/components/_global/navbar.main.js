@@ -21,9 +21,7 @@ import { workflowStatusSTR } from "@/utils";
 
 export function Navbar({ isOpen }) {
     const { isConnected } = useAccount()
-    const { isOwner, workflowStatus, winningProposalID } = useContext(VotingContext)
-
-    console.log('Navbar', isOwner)
+    const { isOwner, workflowStatus, winningProposalID, isVoter } = useContext(VotingContext)
 
     return (
         <Box>
@@ -65,9 +63,9 @@ export function Navbar({ isOpen }) {
                             <Text fontSize={"2xl"}>{workflowStatusSTR[String(workflowStatus)]}</Text>
                         </Box>
 
-                        {Number(winningProposalID) !== 0 && (
+                        {workflowStatus === 5 && Number(winningProposalID) >= 0 && (
                             <Box px={2}>
-                                <Text fontSize={"2xl"}>Winner: {String(winningProposalID)}</Text>
+                                <Text fontSize={"2xl"}>Winner: {Number(winningProposalID).toString()}</Text>
                             </Box>
                         )}
                     </>
@@ -79,8 +77,8 @@ export function Navbar({ isOpen }) {
                 </Box>
 
                 <Box px={1}>
-                    <Menu>
-                        {!isConnected ? (
+                    {!isConnected ? (
+                        <Menu>
                             <ConnectButton
                                 accountStatus={{
                                     smallScreen: "avatar",
@@ -91,38 +89,41 @@ export function Navbar({ isOpen }) {
                                     largeScreen: "full",
                                 }}
                             />
-                        ) : (
+                        </Menu>
+                    ) : (
+                        <Menu>
+
                             <MenuButton as={Button}>
                                 Profile
                             </MenuButton>
-                        )}
-                        <MenuList px={2}>
-                            <ConnectButton
-                                accountStatus={{
-                                    smallScreen: "avatar",
-                                    largeScreen: "full",
-                                }}
-                                chainStatus={{
-                                    smallScreen: "none",
-                                    largeScreen: "full",
-                                }}
-                            />
-                            {isConnected && (
-                                <>
-                                    <MenuGroup title='Profile'>
-                                        <Link href="/account"><MenuItem>My Account</MenuItem></Link>
-                                        <Link href="/proposals"><MenuItem>Proposals</MenuItem></Link>
+                            <MenuList px={2}>
+                                <ConnectButton
+                                    accountStatus={{
+                                        smallScreen: "avatar",
+                                        largeScreen: "full",
+                                    }}
+                                    chainStatus={{
+                                        smallScreen: "none",
+                                        largeScreen: "full",
+                                    }}
+                                />
+                                {isVoter && (
+                                    <>
+                                        <MenuGroup title='Profile'>
+                                            <Link href="/account"><MenuItem>My Account</MenuItem></Link>
+                                            <Link href="/proposals"><MenuItem>Proposals</MenuItem></Link>
+                                        </MenuGroup>
+                                        <MenuDivider />
+                                    </>
+                                )}
+                                {isOwner && (
+                                    <MenuGroup title='Admin'>
+                                        <Link href="/admin"><MenuItem>Dashboard</MenuItem></Link>
                                     </MenuGroup>
-                                    <MenuDivider />
-                                </>
-                            )}
-                            {isOwner && (
-                                <MenuGroup title='Admin'>
-                                    <MenuItem><Link href="/admin">Dashboard</Link></MenuItem>
-                                </MenuGroup>
-                            )}
-                        </MenuList>
-                    </Menu>
+                                )}
+                            </MenuList>
+                        </Menu>
+                    )}
                 </Box>
 
             </Flex >

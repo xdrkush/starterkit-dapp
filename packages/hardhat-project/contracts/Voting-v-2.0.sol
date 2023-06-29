@@ -13,6 +13,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract VotingV2 is Ownable {
     // @notice ID of proposal winning vote
     uint public winningProposalID;
+    uint private TmpWinningProposalID;
 
     // @notice . structure of voter (registered)
     // @notice . isRegistred for check if admin on contract validate
@@ -159,7 +160,7 @@ contract VotingV2 is Ownable {
         proposalsArray[_id].voteCount++;
 
         if (proposalsArray[_id].voteCount > proposalsArray[winningProposalID].voteCount) {
-            winningProposalID = _id;
+            TmpWinningProposalID = _id;
         }
 
         emit Voted(msg.sender, _id);
@@ -250,6 +251,8 @@ contract VotingV2 is Ownable {
             workflowStatus == WorkflowStatus.VotingSessionEnded,
             "Current status is not voting session ended"
         );
+        
+        winningProposalID = TmpWinningProposalID;
 
         workflowStatus = WorkflowStatus.VotesTallied;
         emit WorkflowStatusChange(

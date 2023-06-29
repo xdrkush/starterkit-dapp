@@ -1,22 +1,82 @@
 import { VotingContext } from '@/contexts';
+import { CheckIcon, CloseIcon } from '@chakra-ui/icons';
 import {
-    Box, Button, Input, FormControl, FormLabel, Text
+    Box, Input, FormControl, FormLabel, Text, Card, Stack, CardBody, Heading, CardFooter
 } from '@chakra-ui/react';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { CardProposal } from '../proposal/ListProposals';
+import { isAddress } from 'viem';
 
-export function GetVoter() {
+const CardVoter = ({ addrVoter }) => {
     const { getVoter } = useContext(VotingContext)
-    const [addrVoter, setAddrVoter] = useState("")
     const [voter, setVoter] = useState({})
 
-    const submit = async () => {
-        const v = await getVoter(addrVoter)
+    const loadVoter = async () => {
+        const v = await getVoter(String(addrVoter))
         setVoter(v)
     }
 
+    useEffect(() => {
+        if (!addrVoter) return
+        loadVoter()
+    }, [addrVoter])
+
+    return (
+        <>
+            {voter && (
+                <Card
+                    my={4}
+                    direction={{ base: 'column', sm: 'row' }}
+                    overflow='hidden'
+                    variant='outline'
+                >
+                    <Stack>
+                        <CardBody>
+                            <Heading size='md'>{addrVoter}</Heading>
+
+                            <Text py='1'>
+                                hasVoted: {!voter.hasVoted ? (
+                                    <CloseIcon color='red' />
+                                ) : (
+                                    <CheckIcon color='green' />
+                                )}
+                            </Text>
+                            <Text py='1'>
+                                isRegistered: {!voter.isRegistered ? (
+                                    <CloseIcon color='red' />
+                                ) : (
+                                    <CheckIcon color='green' />
+                                )}
+                            </Text>
+                        </CardBody>
+                        {voter.votedProposalId >= 1 && (
+                            <CardFooter>
+                                <CardProposal
+                                    proposalId={voter.votedProposalId.toString()}
+                                />
+                            </CardFooter>
+                        )}
+                    </Stack>
+                </Card>
+            )}
+        </>
+    )
+}
+
+export function GetVoter() {
+    const [addrVoter, setAddrVoter] = useState("")
+    const [addrIsOk, setAddrIsOk] = useState(null)
+
+    useEffect(() => {
+        // Mettre regex
+        if (isAddress(addrVoter)) {
+            setAddrIsOk(true)
+        }
+    }, [addrVoter])
+    
     return (
         <Box>
-            
+
             <Box>
                 <Text fontSize="2xl">GetVoter ( {addrVoter} )</Text>
                 <FormControl>
@@ -27,17 +87,10 @@ export function GetVoter() {
                         onChange={(e) => setAddrVoter(e.target.value)}
                     />
                 </FormControl>
-                <Button onClick={submit}> Get Voter </Button>
             </Box>
 
-            {voter && voter.isRegistered !== undefined && (
-                <>
-                    <Text> {
-                        "isRegistered: " + String(voter.isRegistered) +
-                        " - hasVoted: " + String(voter.hasVoted) +
-                        " - votedProposalId: " + String(voter.votedProposalId)}
-                    </Text>
-                </>
+            {addrIsOk && (
+                <CardVoter addrVoter={addrVoter} />
             )}
         </Box>
     )

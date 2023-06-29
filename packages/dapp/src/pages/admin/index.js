@@ -9,14 +9,11 @@ import { VotingContext } from '@/contexts'
 import { useRouter } from 'next/router'
 
 export default function Admin() {
-  const { isOwner } = useContext(VotingContext)
+  const { isOwner, workflowStatus } = useContext(VotingContext)
   const router = useRouter()
 
   useEffect(() => {
-    setTimeout(() => {
-      if (!isOwner) router.push('/')
-      console.log("isOwner", isOwner)
-    }, 500)
+    if (!isOwner) router.push('/')
   }, [isOwner])
 
   return (
@@ -29,9 +26,11 @@ export default function Admin() {
         <AdminLayout>
           <Heading>Admin</Heading>
 
-          <Grid py={3} minH={"20vh"}>
-            <AddVoter />
-          </Grid>
+          {workflowStatus === 0 && (
+            <Grid py={3} minH={"20vh"}>
+              <AddVoter />
+            </Grid>
+          )}
 
           <Grid py={3} minH={"20vh"}>
             <SwitchStatus />

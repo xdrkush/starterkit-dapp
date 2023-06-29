@@ -1,10 +1,10 @@
-import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react';
 import { VotingContext } from '@/contexts';
 import { Box, Text } from '@chakra-ui/react';
+import { CardProposal } from '../proposal/ListProposals';
 
 export function WinnerProposalId() {
-    const { getOneProposal, winningProposalID } = useContext(VotingContext)
+    const { getOneProposal, winningProposalID, workflowStatus } = useContext(VotingContext)
     const [proposal, setProposal] = useState({})
 
     const loadProposal = async () => {
@@ -14,21 +14,20 @@ export function WinnerProposalId() {
     }
 
     useEffect(() => {
-        if (!winningProposalID) return
+        if (!Number(winningProposalID)) return
         loadProposal()
 
     }, [winningProposalID])
 
     return (
         <Box>
-            {winningProposalID && winningProposalID !== 0 && (
+            {workflowStatus === 5 && (
                 <>
-                    <Text fontSize="2xl">winningProposalID: ( {winningProposalID.toString()} )</Text>
+                    <Text fontSize="2xl">winningProposalID: ( {Number(winningProposalID).toString()} )</Text>
                     {proposal && (
-                        <>
-                            <Text>Description: {proposal.description}</Text>
-                            <Text>Total votes: {Number(proposal.voteCount).toString()}</Text>
-                        </>
+                        <CardProposal
+                            proposalId={Number(winningProposalID).toString()}
+                        />
                     )}
                 </>
             )}

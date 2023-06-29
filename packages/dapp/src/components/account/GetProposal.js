@@ -1,12 +1,13 @@
 
 import { VotingContext } from '@/contexts';
 import {
-    Box, Button, Input, FormControl, FormLabel, Text
+    Box, Input, FormControl, FormLabel, Text
 } from '@chakra-ui/react';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { CardProposal } from "@/components/proposal/ListProposals"
 
 export function GetProposal() {
-    const {getOneProposal} = useContext(VotingContext)
+    const { getOneProposal, proposalsRegistred } = useContext(VotingContext)
     const [id, setId] = useState("")
     const [proposal, setProposal] = useState({})
 
@@ -15,26 +16,26 @@ export function GetProposal() {
         setProposal(p)
     }
 
+    useEffect(() => {
+        if (id.length < 0) return
+        submit()
+    }, [id])
+
     return (
         <Box>
             <Text fontSize="2xl">GetProposal ( {id} )</Text>
             <FormControl>
-                <FormLabel>Target Proposal (uint)</FormLabel>
+                <FormLabel>Target Proposal (uint) - Total ({proposalsRegistred.length})</FormLabel>
                 <Input
+                    type='number'
                     focusBorderColor={id.length === 42 ? "green.500" : "red.500"}
                     value={id}
                     onChange={(e) => setId(e.target.value)}
                 />
             </FormControl>
-            <Button onClick={submit}> Get Proposal </Button>
 
-            {proposal && proposal.description && (
-                <Box display="flex">
-                    <Text> {
-                        "Description: " + String(proposal.description) +
-                        " - VoteCount: " + String(proposal.voteCount)}
-                    </Text>
-                </Box>
+            {proposal && id.length > 0 && Number(id) <= proposalsRegistred.length && (
+                <CardProposal proposalId={id} />
             )}
         </Box>
     )

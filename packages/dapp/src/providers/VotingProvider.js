@@ -7,7 +7,7 @@ export const VotingProvider = ({ children }) => {
     // Hook
     const {
         // State contract
-        address, contract, owner, isOwner, isVoter,
+        address, contract, owner, isOwner, isVoter, votingIsConnected,
         winningProposalID, workflowStatus,
         // Fn
         // admin
@@ -21,7 +21,7 @@ export const VotingProvider = ({ children }) => {
 
     // Memory
     const values = useMemo(() => ({
-        address, contract, owner, isOwner, isVoter,
+        address, contract, owner, isOwner, isVoter, votingIsConnected,
         winningProposalID, workflowStatus,
         addVoter, startProposalsRegistering, endProposalsRegistering,
         startVotingSession, endVotingSession, tallyVotes,
@@ -29,7 +29,7 @@ export const VotingProvider = ({ children }) => {
         listVoters, proposalsRegistred, historyVotes
 
     }), [
-        address, contract, owner, isOwner, isVoter,
+        address, contract, owner, isOwner, isVoter, votingIsConnected,
         winningProposalID, workflowStatus,
         addVoter, startProposalsRegistering, endProposalsRegistering,
         startVotingSession, endVotingSession, tallyVotes,

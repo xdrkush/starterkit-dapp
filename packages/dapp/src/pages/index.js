@@ -14,17 +14,23 @@ import { useAccount } from "wagmi";
 export default function Home() {
   const { isConnected } = useAccount()
   // Call hook
-  const { address, owner, isOwner, isVoter } = useContext(VotingContext);
+  const { address, owner, isOwner, isVoter, votingIsConnected, winningProposalID } = useContext(VotingContext);
 
   return (
     <MainLayout>
 
       <Heading>Welcome to voting contract </Heading>
 
-      {!isConnected ? (
+      {!isConnected && (
         <Box>
           <p>Vous devez être connecté pour accèder au vote</p>
+        </Box>
 
+      )}
+
+      {!votingIsConnected ? (
+        <Box>
+          <p>Le contrat semble ne pas être connecté.</p>
         </Box>
       ) : (
         <Box>
@@ -47,10 +53,11 @@ export default function Home() {
             <ListVotes />
           </Grid>
 
-        </Box>
-      )}
+        </Box >
+      )
+      }
 
 
-    </MainLayout>
+    </MainLayout >
   )
 }

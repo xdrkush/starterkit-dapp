@@ -34,7 +34,7 @@ describe("Voting with DOS GAS LIMIT on proposals", function () {
     };
 
     /**
-     * DOS_GAS_LIMIT
+     * Fixture DOS_GAS_LIMIT
      */
 
     async function deployContextVote_With_DOS_GAS_LIMIT() {

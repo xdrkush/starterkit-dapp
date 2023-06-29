@@ -4,6 +4,7 @@ import {
     Box, Button, Text
 } from '@chakra-ui/react';
 import { useContext } from 'react';
+import { workflowStatusSTR } from "@/utils";
 
 const ButtonStatus = () => {
     const {
@@ -33,8 +34,8 @@ export function SwitchStatus() {
 
     return (
         <Box>
-            <Text fontSize="2xl">SwitchStatus (Status: {workflowStatus})</Text>
-            
+            <Text fontSize={"2xl"}>SwitchStatus (Status: {`${workflowStatus} = ${workflowStatusSTR[String(workflowStatus)]}`})</Text>
+
             {workflowStatus >= 0 && (
                 <ButtonStatus />
             )}

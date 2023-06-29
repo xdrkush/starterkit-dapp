@@ -1,5 +1,7 @@
 # Config
 
+Limit of contract is, if equality on proposal, then le first proposalID with the total_votes win.
+
 In hardhat.config.js set params `blockGasLimit` for set the gasLimit accepted:
 
 ```js
