@@ -11,7 +11,7 @@ export default function Proposals() {
 
     useEffect(() => {
         if (!isVoter) router.push('/')
-    }, [isVoter])
+    }, [isVoter, router])
 
     return (
         <>

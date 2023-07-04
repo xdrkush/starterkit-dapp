@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { ChakraProvider } from '@chakra-ui/react'
-import { RainbowKitProvider, connectorsForWallets } from "@rainbow-me/rainbowkit";
-import { configureChains, createConfig, WagmiConfig } from "wagmi";
+import { getDefaultWallets, RainbowKitProvider, connectorsForWallets } from "@rainbow-me/rainbowkit";
+import {  configureChains, createConfig, WagmiConfig } from "wagmi";
 import { mainnet, sepolia, hardhat, polygon, polygonMumbai } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
+import { infuraProvider } from '@wagmi/core/providers/infura'
 
 import {
     injectedWallet,
@@ -19,46 +20,46 @@ import {
 
 import { VotingProvider } from '@/providers/VotingProvider';
 
+// wagmi config
 const { chains, publicClient } = configureChains(
     [mainnet, sepolia, polygon, polygonMumbai, hardhat],
     [
         publicProvider(),
-        jsonRpcProvider({
-            // Check if the chain ID matches the Polygon Mumbai test network
-            rpc: (chain) => {
-                if (chain.id !== polygonMumbai.id) return null;
-                return { http: chain.rpcUrls.default };
-            },
-        })
+        infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_PROJECT_ID })
     ]
 );
 
-const projectId = "Voting dApp";
+const { wallets } = getDefaultWallets({
+    appName: process.env.NEXT_PUBLIC_WALLET_CONNECT_APPNAME,
+    projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID,
+    chains,
+});
+
 const connectors = connectorsForWallets([
-    {
-        groupName: 'Recommended',
-        wallets: [
-            injectedWallet({ chains }),
-            rainbowWallet({ projectId, chains }),
-            metaMaskWallet({ projectId, chains }),
-            coinbaseWallet({ chains, appName: projectId }),
-            walletConnectWallet({ projectId, chains }),
-        ],
-    },
+    ...wallets,
     {
         groupName: 'Others',
         wallets: [
-            ledgerWallet({ projectId, chains }),
-            argentWallet({ projectId, chains }),
-            trustWallet({ projectId, chains })
+            ledgerWallet({
+                projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID,
+                chains
+            }),
+            argentWallet({
+                projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID,
+                chains
+            }),
+            trustWallet({
+                projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID,
+                chains
+            })
         ],
     },
-]);
+])
 
-const config = createConfig({
+const wagmiConfig = createConfig({
     autoConnect: true,
     connectors,
-    publicClient,
+    publicClient
 });
 
 export default function App({ Component, pageProps }) {
@@ -68,15 +69,15 @@ export default function App({ Component, pageProps }) {
 
     return (
         <ChakraProvider>
-            <WagmiConfig config={config}>
-                <RainbowKitProvider chains={chains}>
-                    {mounted && (
-                        <VotingProvider>
-                            <Component {...pageProps} />
-                        </VotingProvider>
-                    )}
-                </RainbowKitProvider>
-            </WagmiConfig>
+            {mounted && (
+                <WagmiConfig config={wagmiConfig}>
+                    <RainbowKitProvider chains={chains}>
+                            <VotingProvider>
+                                <Component {...pageProps} />
+                            </VotingProvider>
+                    </RainbowKitProvider>
+                </WagmiConfig>
+            )}
         </ChakraProvider>
     )
 }

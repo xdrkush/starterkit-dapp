@@ -14,7 +14,7 @@ export default function Admin() {
 
   useEffect(() => {
     if (!isOwner) router.push('/')
-  }, [isOwner])
+  }, [isOwner, router])
 
   return (
     <>

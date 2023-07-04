@@ -3,7 +3,7 @@ import { VotingContext } from '@/contexts';
 import {
     Box, Input, FormControl, FormLabel, Text
 } from '@chakra-ui/react';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { CardProposal } from "@/components/proposal/ListProposals"
 
 export function GetProposal() {
@@ -11,15 +11,15 @@ export function GetProposal() {
     const [id, setId] = useState("")
     const [proposal, setProposal] = useState({})
 
-    const submit = async () => {
+    const submit = useCallback(async () => {
         const p = await getOneProposal(Number(id))
         setProposal(p)
-    }
+    }, [id, getOneProposal])
 
     useEffect(() => {
         if (id.length < 0) return
         submit()
-    }, [id])
+    }, [id, submit])
 
     return (
         <Box>

@@ -15,7 +15,7 @@ export default function Account() {
 
   useEffect(() => {
     if (!isVoter) router.push('/')
-  }, [isVoter])
+  }, [isVoter, router])
 
   return (
     <>

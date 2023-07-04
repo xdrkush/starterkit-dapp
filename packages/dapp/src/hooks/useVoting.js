@@ -8,6 +8,7 @@ import { hardhat } from 'viem/chains'
 
 import contracts from "@/config/contracts.json"
 import { useError } from './useError';
+import { client, config } from "@/config"
 import { confetti } from '@/utils';
 
 export function useVoting() {
@@ -28,12 +29,6 @@ export function useVoting() {
     const [proposalsRegistred, setProposalsRegistred] = useState([]);
     const [historyVotes, setHistoryVotes] = useState([]);
     const [historyWorkflowStatus, setHistoryWorkflowStatus] = useState([]);
-
-    // Viem client
-    const client = createPublicClient({
-        chain: hardhat,
-        transport: http(),
-    })
 
     // Init
     useEffect(() => {
@@ -63,15 +58,16 @@ export function useVoting() {
         try {
             // get contract with provider connected
             const walletClient = await getWalletClient()
+            console.log('hook', config)
             const voting = getContract({
-                address: contracts.voting.address,
-                abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
+                abi: config.contracts.voting.abi,
                 walletClient
             })
+            
 
             const owner = isAddress(await voting.read.owner()) ? await voting.read.owner() : null
             const wfStatus = await voting.read.workflowStatus()
-
             
             // Set state hook
             setWinningProposalID(await voting.read.winningProposalID())
@@ -88,7 +84,6 @@ export function useVoting() {
             setVotingIsConnected(false)
         }
     }
-
     const checkRoles = async () => {
         try {
             const voter = await getVoter(address)
@@ -105,20 +100,18 @@ export function useVoting() {
 
         await confetti()
     }
-
     /**
      * Event History Log
      */
 
     const getEventsHistory = async () => {
+        const fromBlock = BigInt(Number(await client.getBlockNumber()) - 15000)
         try {
             // VoterRegistered
             const logsVoterRegistered = await client.getLogs({
-                // address: contracts.voting.address,
-                // abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
                 event: parseAbiItem('event VoterRegistered(address voterAddress)'),
-                fromBlock: 0n,
-                toBlock: 1000n
+                fromBlock: Number(fromBlock) >= 0 ? fromBlock : 0n,
             })
             setListVoters(logsVoterRegistered)
             console.log('listVoters', logsVoterRegistered, listVoters)
@@ -129,11 +122,9 @@ export function useVoting() {
         try {
             // WorkflowStatusChange
             const logsWorkflowStatusChange = await client.getLogs({
-                // address: contracts.voting.address,
-                // abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
                 event: parseAbiItem('event WorkflowStatusChange(uint8 previousStatus,uint8 newStatus)'),
-                fromBlock: 0n,
-                toBlock: 1000n
+                fromBlock: Number(fromBlock) >= 0 ? fromBlock : 0n,
             })
             setHistoryWorkflowStatus(logsWorkflowStatusChange)
             console.log('historyWorkflowStatus', logsWorkflowStatusChange)
@@ -144,11 +135,9 @@ export function useVoting() {
         try {
             // ProposalRegistered
             const logsProposalRegistered = await client.getLogs({
-                // address: contracts.voting.address,
-                // abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
                 event: parseAbiItem('event ProposalRegistered(uint proposalId)'),
-                fromBlock: 0n,
-                toBlock: 1000n
+                fromBlock: Number(fromBlock) >= 0 ? fromBlock : 0n,
             })
             setProposalsRegistred(logsProposalRegistered)
             console.log('proposalsRegistred', logsProposalRegistered)
@@ -159,11 +148,9 @@ export function useVoting() {
         try {
             // Voted
             const logsHistoryVotes = await client.getLogs({
-                // address: contracts.voting.address,
-                // abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
                 event: parseAbiItem('event Voted(address voter, uint proposalId)'),
-                fromBlock: 0n,
-                toBlock: 1000n
+                fromBlock: Number(fromBlock) >= 0 ? fromBlock : 0n,
             })
             setHistoryVotes(logsHistoryVotes)
             console.log('historyVotes', logsHistoryVotes)
@@ -171,25 +158,25 @@ export function useVoting() {
             setError(error.message)
         }
 
-        initWatcher()
+        // initWatcher()
     }
 
-    const initWatcher = async () => {
-        try {
-            const filter = await client.createContractEventFilter({
-                abi: contracts.voting.abi,
-                address: contracts.voting.address,
-                eventName: 'VoterRegistered',
-                // fromBlock: 0n,
-                // toBlock: 20n
-            })
-            const logs = await client.getFilterLogs({ filter })
+    // const initWatcher = async () => {
+    //     const fromBlock = BigInt(Number(await client.getBlockNumber()) - 15000)
+    //     try {
+    //         const filter = await client.createContractEventFilter({
+    //             abi: config.contracts.voting.abi,
+    //             address: config.contracts.voting.address,
+    //             eventName: 'VoterRegistered',
+    //             fromBlock: Number(fromBlock) >= 0 ? fromBlock : 0n,
+    //         })
+    //         const logs = await client.getFilterLogs({ filter })
 
-            console.log('logs 1', logs)
-        } catch (error) {
-            console.log(error)
-        }
-    }
+    //         console.log('logs 1', logs)
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }
 
     /**
      * Watcher
@@ -197,16 +184,16 @@ export function useVoting() {
 
     // Set Workflow status with event WorkflowStatusChange
     watchContractEvent({
-        address: contracts.voting.address,
-        abi: contracts.voting.abi,
+        address: config.contracts.voting.address,
+        abi: config.contracts.voting.abi,
         eventName: 'WorkflowStatusChange',
     }, (log) => {
         setWorkflowStatus(log[0].args.newStatus)
     })
     // Set List Voters with event VoterRegistered
     // watchContractEvent({
-    //     address: contracts.voting.address,
-    //     abi: contracts.voting.abi,
+    //     address: config.contracts.voting.address,
+    //     abi: config.contracts.voting.abi,
     //     eventName: 'VoterRegistered',
     // }, (log) => {
     //     console.log('event VoterRegistred', listVoters, [...listVoters, ...log])
@@ -215,8 +202,8 @@ export function useVoting() {
 
     // Set List Voters with event VoterRegistered
     // useContractEvent({
-    //     address: contracts.voting.address,
-    //     abi: contracts.voting.abi,
+    //     address: config.contracts.voting.address,
+    //     abi: config.contracts.voting.abi,
     //     eventName: 'VoterRegistered',
     //     listener(log) {
     //         console.log(log)
@@ -225,8 +212,8 @@ export function useVoting() {
 
     // Set List Votes with event Voted
     // watchContractEvent({
-    //     address: contracts.voting.address,
-    //     abi: contracts.voting.abi,
+    //     address: config.contracts.voting.address,
+    //     abi: config.contracts.voting.abi,
     //     eventName: 'Voted',
     // }, (log) => {
     //     setHistoryVotes([...historyVotes, ...log])
@@ -237,8 +224,8 @@ export function useVoting() {
         if (!_address) return;
         try {
             const { request } = await prepareWriteContract({
-                address: contracts.voting.address,
-                abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
+                abi: config.contracts.voting.abi,
                 functionName: 'addVoter',
                 args: [String(_address)]
             })
@@ -252,8 +239,8 @@ export function useVoting() {
     const startProposalsRegistering = async () => {
         try {
             const { request } = await prepareWriteContract({
-                address: contracts.voting.address,
-                abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
+                abi: config.contracts.voting.abi,
                 functionName: 'startProposalsRegistering'
             })
             const { hash } = await writeContract(request)
@@ -266,8 +253,8 @@ export function useVoting() {
     const endProposalsRegistering = async () => {
         try {
             const { request } = await prepareWriteContract({
-                address: contracts.voting.address,
-                abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
+                abi: config.contracts.voting.abi,
                 functionName: 'endProposalsRegistering'
             })
             const { hash } = await writeContract(request)
@@ -280,8 +267,8 @@ export function useVoting() {
     const startVotingSession = async () => {
         try {
             const { request } = await prepareWriteContract({
-                address: contracts.voting.address,
-                abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
+                abi: config.contracts.voting.abi,
                 functionName: 'startVotingSession'
             })
             const { hash } = await writeContract(request)
@@ -294,8 +281,8 @@ export function useVoting() {
     const endVotingSession = async () => {
         try {
             const { request } = await prepareWriteContract({
-                address: contracts.voting.address,
-                abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
+                abi: config.contracts.voting.abi,
                 functionName: 'endVotingSession'
             })
             const { hash } = await writeContract(request)
@@ -308,8 +295,8 @@ export function useVoting() {
     const tallyVotes = async () => {
         try {
             const { request } = await prepareWriteContract({
-                address: contracts.voting.address,
-                abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
+                abi: config.contracts.voting.abi,
                 functionName: 'tallyVotes'
             })
             const { hash } = await writeContract(request)
@@ -328,8 +315,8 @@ export function useVoting() {
         if (!_address) return;
         try {
             const data = await readContract({
-                address: contracts.voting.address,
-                abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
+                abi: config.contracts.voting.abi,
                 functionName: 'getVoter',
                 args: [String(_address)]
             })
@@ -342,8 +329,8 @@ export function useVoting() {
         if (Number(_id) < 0) return;
         try {
             const data = await readContract({
-                address: contracts.voting.address,
-                abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
+                abi: config.contracts.voting.abi,
                 functionName: 'getOneProposal',
                 args: [Number(_id)]
             })
@@ -356,8 +343,8 @@ export function useVoting() {
         if (!_desc) return;
         try {
             const { request } = await prepareWriteContract({
-                address: contracts.voting.address,
-                abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
+                abi: config.contracts.voting.abi,
                 functionName: 'addProposal',
                 args: [String(_desc)]
             })
@@ -371,8 +358,8 @@ export function useVoting() {
         if (!_id) return;
         try {
             const { request } = await prepareWriteContract({
-                address: contracts.voting.address,
-                abi: contracts.voting.abi,
+                address: config.contracts.voting.address,
+                abi: config.contracts.voting.abi,
                 functionName: 'setVote',
                 args: [Number(_id)]
             })
@@ -386,7 +373,7 @@ export function useVoting() {
     // export from hook
     return {
         // Static
-        address: contracts.voting.address,
+        address: config.contracts.voting.address,
         // State contract
         contract, owner, isOwner, isVoter, votingIsConnected,
         winningProposalID, workflowStatus,

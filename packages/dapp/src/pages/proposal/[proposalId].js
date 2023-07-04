@@ -23,7 +23,7 @@ export default function ProposalId() {
     useEffect(() => {
         if (!proposalId) return
         loadProposal()
-    }, [proposalId])
+    }, [proposalId, loadProposal])
 
     return (
         <>
